@@ -8,7 +8,7 @@
             "name": "g++.exe - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/../bin/${fileBasenameNoExtension}.exe",
+            "program": "${fileDirname}/../bin/pazl.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -29,7 +29,7 @@ int main(int argc, char* args[]) {
     SDL_CHECK((IMG_Init(imgFlags) & imgFlags));
     SDL_CHECK(TTF_Init());
     SDL_CHECK(loadFramerateFont(&game));
-    SDL_Window* gWindow{SDL_CHECK(SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, game.width, game.height, SDL_WINDOW_SHOWN))};
+    SDL_Window* gWindow{SDL_CHECK(SDL_CreateWindow("Pazl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, game.width, game.height, SDL_WINDOW_SHOWN))};
     SDL_Renderer* gRenderer{SDL_CHECK(SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC))};     
     
     gameInit(gRenderer, reg, &game);
