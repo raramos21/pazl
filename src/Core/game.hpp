@@ -7,16 +7,10 @@
 #include <entt/entity/registry.hpp>
 #include "../Components/game_settings.hpp"
 
-enum Movement{
-    RIGHT,
-    LEFT,
-    JUMP,
-    RUN
-};
-
 void gameInit(SDL_Renderer*, entt::registry &, GameSettings*);
 void gameInput(entt::registry &,  SDL_Scancode);
-void gameLogic();
+void gameDefaultInput(entt::registry &);
+void gameLogic(entt::registry &, double, float);
 void gameRender(SDL_Renderer*, entt::registry &, GameSettings*);
 void gameQuit(SDL_Window*, SDL_Renderer*, entt::registry &, GameSettings*);
 

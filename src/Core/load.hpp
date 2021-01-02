@@ -9,6 +9,6 @@
 #include "../Components/game_settings.hpp"
 
 bool loadFramerateFont(GameSettings* );
-bool loadSpriteFromFile(SDL_Renderer *, IdleAnimationSprite &, std::string );
+bool loadSpriteFromFile(SDL_Renderer *, Sprite &, std::string );
 
 #endif

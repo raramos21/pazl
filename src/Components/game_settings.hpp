@@ -4,15 +4,18 @@
 #include <SDL_ttf.h>
 
 struct GameSettings {
-    int width;
-    int height;
-    int frames;
-    bool quit;
-    TTF_Font* gFont;
+    bool  QUIT;
+    int   WIDTH;
+    int   HEIGHT;
+    int   FRAMES;
+    int   FPS_CAP;
+    float TICKS_PER_FRAME;
+    
+    TTF_Font* FONT;
 
-    float avgFPS;
-    float currentFPS;
-    float currentPerf;  
+    float AVERAGE_FPS;
+    float CURRENT_FPS;
+    float CURRENT_PERF;  
 };
 
 #endif

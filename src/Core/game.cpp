@@ -9,73 +9,43 @@
 #include <SDL_image.h>
 #include <math.h>
 
+#include "../Systems/player_input.hpp"
+#include "../Systems/player_movement.hpp"
 
 void gameInit(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
     const entt::entity player = makePlayer(renderer, reg, game);
 }
 
-void gameInput(entt::registry& reg, SDL_Scancode key) {    
-    Movement movement; 
-    switch(key){
-        case SDL_SCANCODE_D:
-            movement = RIGHT;
-            break;
-        case SDL_SCANCODE_A:
-            movement = LEFT;
-            break;
-        case SDL_SCANCODE_SPACE:
-            movement = JUMP;
-            break;
-        case SDL_SCANCODE_LSHIFT:
-            movement = RUN;
-            break;
-        default:
-            break;
-    }
-
-    const auto view = reg.view<Player, Position>();
-    for(const entt::entity e: view) {
-        auto &position = view.get<Position>(e);
-
-        switch(movement){
-            case RIGHT:
-                position.x += 20.0f;
-                break;
-            case LEFT:
-                position.x -= 20.0f;
-                break;
-            case JUMP:
-                position.y += 10.0f;
-                break;
-            case RUN:
-                position.y += 40.0f;
-                break;
-            default:
-                break;
-        }
-    }
+void gameInput(entt::registry& reg, SDL_Scancode scancode) {    
+    playerInput(reg, scancode);
 }
 
-void gameLogic() {
+void gameDefaultInput(entt::registry& reg) {    
+    playerDefault(reg);
+}
 
+void gameLogic(entt::registry& reg, double t, float dt) {    
+    playerMovement(reg, dt);
 }
 
 void gameRender(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
-    renderFrameRate(renderer, game);
+    // renderFrameRate(renderer, game);
     renderPlayer(renderer, reg, game);
 }
 
 void gameQuit(SDL_Window* window, SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
-    printf("QUIT!!!\n");
-
-    const auto view = reg.view<IdleAnimationSprite>();
+    const auto view = reg.view<IdleSprite, RunSprite>();
     for(const entt::entity e : view){
-        IdleAnimationSprite &idleSprite = view.get<IdleAnimationSprite>(e);
+        auto &idleSprite = view.get<IdleSprite>(e);
+        auto &runSprite = view.get<RunSprite>(e);
+
         SDL_DestroyTexture(idleSprite.textureSheet);
+        SDL_DestroyTexture(runSprite.textureSheet);
         idleSprite.textureSheet = NULL;
+        runSprite.textureSheet  = NULL;
     }
 
-    game->gFont = NULL;
+    game->FONT = NULL;
 
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);

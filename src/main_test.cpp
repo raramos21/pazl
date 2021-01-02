@@ -148,7 +148,7 @@ bool init() {
             printf("Window could not be created! SDL_ERROR: %s\n", SDL_GetError());
             success = false;
         } else {
-            gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+            gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_PRESENTVSYNC);
             // gScreenSurface = SDL_GetWindowSurface(gWindow);
             if(gRenderer == NULL){
                 printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
@@ -451,6 +451,12 @@ int main(int argc, char* args []){
 		dest.y += 24;
 		renderText(perf, dest);
         SDL_RenderPresent(gRenderer);
+
+        if( (frameTimeSDL * 1000) < (1000/ 120) ) 
+        {            
+            //Sleep the remaining frame time
+            SDL_Delay( (1000/ 120) - (frameTimeSDL * 1000) );
+        } 
     }
     
 

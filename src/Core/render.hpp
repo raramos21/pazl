@@ -7,7 +7,7 @@
 #include <string>
 #include "../Components/game_settings.hpp"
 
-void renderText(SDL_Renderer*, const std::string, SDL_Rect, TTF_Font*);
+void renderText(SDL_Renderer *, TTF_Font*, SDL_Rect,  SDL_Color, const std::string);
 void renderFrameRate(SDL_Renderer*, GameSettings* );
 void renderPlayer(SDL_Renderer *, entt::registry &, GameSettings*);
 

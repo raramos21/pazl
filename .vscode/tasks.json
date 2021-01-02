@@ -14,6 +14,8 @@
                 "${fileDirname}/../src/Core/factories.cpp",
                 "${fileDirname}/../src/Core/load.cpp",
                 "${fileDirname}/../src/Core/render.cpp",
+                "${fileDirname}/../src/Systems/player_input.cpp",
+                "${fileDirname}/../src/Systems/player_movement.cpp",
                 "-o",
                 // "${fileDirname}/../bin/${fileBasenameNoExtension}.exe",
                 "${fileDirname}/../bin/pazl.exe",
