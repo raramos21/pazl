@@ -24,15 +24,19 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     auto &idleSprite = reg.emplace<IdleSprite>(e);
     SDL_CHECK(loadSpriteFromFile(renderer, idleSprite, "assets/player/Woodcutter_idle.png"));
 
-    idleSprite.total_frames = 4;    
+    idleSprite.total_frames = 8;    
     SDL_Rect idle1{ 0, 0, 40, 45};
     SDL_Rect idle2{ 45, 0, 40, 45};
     SDL_Rect idle3{ 90, 0, 40, 45};
     SDL_Rect idle4{ 135, 0, 40, 45};
 
     idleSprite.spriteClips.push_back(idle1);
+    idleSprite.spriteClips.push_back(idle1);
+    idleSprite.spriteClips.push_back(idle2);
     idleSprite.spriteClips.push_back(idle2);
     idleSprite.spriteClips.push_back(idle3);
+    idleSprite.spriteClips.push_back(idle3);
+    idleSprite.spriteClips.push_back(idle4);
     idleSprite.spriteClips.push_back(idle4);
 
     position.x = (game->WIDTH  - idleSprite.spriteClips[0].w)/2;
@@ -50,11 +54,41 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     SDL_Rect run6{ 225, 0, 40, 45};
 
     runSprite.spriteClips.push_back(run1);
+    // runSprite.spriteClips.push_back(run1);
     runSprite.spriteClips.push_back(run2);
+    // runSprite.spriteClips.push_back(run2);
     runSprite.spriteClips.push_back(run3);
+    // runSprite.spriteClips.push_back(run3);
     runSprite.spriteClips.push_back(run4);
+    // runSprite.spriteClips.push_back(run4);
     runSprite.spriteClips.push_back(run5);
+    // runSprite.spriteClips.push_back(run5);
     runSprite.spriteClips.push_back(run6);
+    // runSprite.spriteClips.push_back(run6);
+    
+    auto &walkSprite = reg.emplace<WalkSprite>(e);
+    SDL_CHECK(loadSpriteFromFile(renderer, walkSprite, "assets/player/Woodcutter_walk.png"));
+
+    walkSprite.total_frames = 12;    
+    SDL_Rect walk1{ 0, 0, 40, 45};
+    SDL_Rect walk2{ 45, 0, 40, 45};
+    SDL_Rect walk3{ 90, 0, 40, 45};
+    SDL_Rect walk4{ 135, 0, 40, 45};
+    SDL_Rect walk5{ 180, 0, 40, 45};
+    SDL_Rect walk6{ 225, 0, 40, 45};
+
+    walkSprite.spriteClips.push_back(run1);
+    walkSprite.spriteClips.push_back(run1);
+    walkSprite.spriteClips.push_back(run2);
+    walkSprite.spriteClips.push_back(run2);
+    walkSprite.spriteClips.push_back(run3);
+    walkSprite.spriteClips.push_back(run3);
+    walkSprite.spriteClips.push_back(run4);
+    walkSprite.spriteClips.push_back(run4);
+    walkSprite.spriteClips.push_back(run5);
+    walkSprite.spriteClips.push_back(run5);
+    walkSprite.spriteClips.push_back(run6);
+    walkSprite.spriteClips.push_back(run6);
     
     return e;
 }

@@ -28,11 +28,11 @@ void renderFrameRate(SDL_Renderer *renderer, GameSettings* game) {
 std::string getPlayerActionString(PlayerAction action){
     std::string actionString = "NONE";
     switch(action){
-        case MOVE_RIGHT:
-            actionString = "MOVE_RIGHT";
+        case WALK_RIGHT:
+            actionString = "WALK_RIGHT";
             break;
-        case MOVE_LEFT:
-            actionString = "MOVE_LEFT";
+        case WALK_LEFT:
+            actionString = "WALK_LEFT";
             break;
         case JUMP:
             actionString = "JUMP";
@@ -54,25 +54,21 @@ std::string getPlayerActionString(PlayerAction action){
 }
 
 void renderPlayer(SDL_Renderer *renderer, entt::registry &reg, GameSettings* game) {
-    const auto view = reg.view<Player, Position, Velocity, Force, IdleSprite, RunSprite>();
+    const auto view = reg.view<Player, Position, Velocity, Force, IdleSprite, RunSprite, WalkSprite>();
     for(const entt::entity e : view){
         const auto player   = view.get<Player>(e);
         const auto position = view.get<Position>(e);
         const auto velocity = view.get<Velocity>(e);
         const auto force    = view.get<Force>(e);
 
-        // if(game->FRAMES %2 != 0 && game->FRAMES != 0){
-        //     game->FRAMES -= 1;
-        // }
-
         int total_sprite_frames = 1;
-        if((player.currentAction == MOVE_LEFT || player.currentAction == MOVE_RIGHT) ){
-            const auto runSprite = view.get<RunSprite>(e);
+        if((player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT) ){
+            const auto runSprite = view.get<WalkSprite>(e);
             total_sprite_frames = runSprite.total_frames;
             SDL_Rect currentClip = runSprite.spriteClips[game->FRAMES/total_sprite_frames];
             SDL_Rect renderQuad = {(int) position.x, (int) position.y, currentClip.w+50, currentClip.h+50};
             
-            if(player.currentAction == MOVE_RIGHT){
+            if(player.currentAction == WALK_RIGHT){
                 SDL_RenderCopy(renderer, runSprite.textureSheet, &currentClip, &renderQuad);                
             } else{
                 SDL_RenderCopyEx(renderer, runSprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL); 
@@ -84,8 +80,12 @@ void renderPlayer(SDL_Renderer *renderer, entt::registry &reg, GameSettings* gam
             total_sprite_frames = idleSprite.total_frames;
             SDL_Rect currentClip = idleSprite.spriteClips[game->FRAMES/total_sprite_frames];
             SDL_Rect renderQuad = {(int) position.x, (int) position.y, currentClip.w+50, currentClip.h+50};
-        
-            SDL_RenderCopy(renderer, idleSprite.textureSheet, &currentClip, &renderQuad);
+
+            if(player.direction == LOOKING_LEFT){
+                SDL_RenderCopyEx(renderer, idleSprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
+            } else {
+                SDL_RenderCopy(renderer, idleSprite.textureSheet, &currentClip, &renderQuad);
+            }
         }
 
         // if(game->FRAMES %2 == 0){

@@ -19,7 +19,7 @@ int main(int argc, char* args[]) {
     game.WIDTH           = 1500;
     game.HEIGHT          =  800;
     game.FRAMES          = 0;
-    game.FPS_CAP         = 60;
+    game.FPS_CAP         = 120;
     game.TICKS_PER_FRAME = 1000 / game.FPS_CAP;
     game.QUIT            = false;
     game.FONT            = NULL;
@@ -36,7 +36,7 @@ int main(int argc, char* args[]) {
     SDL_CHECK(TTF_Init());
     SDL_CHECK(loadFramerateFont(&game));
     SDL_Window* gWindow{SDL_CHECK(SDL_CreateWindow("Pazl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, game.WIDTH, game.HEIGHT, SDL_WINDOW_SHOWN))};
-    SDL_Renderer* gRenderer{SDL_CHECK(SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC))};     
+    SDL_Renderer* gRenderer{SDL_CHECK(SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED))}; //| SDL_RENDERER_PRESENTVSYNC))};     
     
     gameInit(gRenderer, reg, &game);
 
@@ -81,8 +81,10 @@ int main(int argc, char* args[]) {
             t += dt;            
         }     
 
-        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 255);
+        // SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 255);
+        SDL_SetRenderDrawColor(gRenderer, 0xf3, 0xf4, 0xf6, 255);
         SDL_RenderClear(gRenderer);
+
         gameRender(gRenderer, reg, &game);                
 
 

@@ -5,12 +5,19 @@
 #include <SDL.h>
 
 enum PlayerAction {
-    MOVE_RIGHT,
-    MOVE_LEFT,
+    WALK_RIGHT,
+    WALK_LEFT,
+    RUN_RIGHT,
+    RUN_LEFT,
     JUMP,
     RUN,
     IDLE,
     ATTACK
+};
+
+enum PlayerDirection {
+    LOOKING_LEFT,
+    LOOKING_RIGHT
 };
 
 struct Player {
@@ -18,6 +25,7 @@ struct Player {
     float mass;
     PlayerAction lastAction;
     PlayerAction currentAction;
+    PlayerDirection direction;
 };
 
 struct Position {
@@ -58,6 +66,7 @@ struct Sprite {
 };
 
 struct IdleSprite : public Sprite {};
+struct WalkSprite : public Sprite {};
 struct RunSprite : public Sprite {};
 struct AttackSprite : public Sprite {};
 struct DieSprite : public Sprite {};

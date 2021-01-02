@@ -9,22 +9,26 @@ void playerInput(entt::registry &reg, SDL_Scancode scancode){
         player.lastAction = player.currentAction;
         switch(scancode){
             case SDL_SCANCODE_D:
-                player.currentAction =  MOVE_RIGHT;
+            case SDL_SCANCODE_RIGHT:
+                player.currentAction = WALK_RIGHT;
+                player.direction = LOOKING_RIGHT;
                 break;
             case SDL_SCANCODE_A:
-                player.currentAction =  MOVE_LEFT;
+            case SDL_SCANCODE_LEFT:
+                player.currentAction = WALK_LEFT;
+                player.direction = LOOKING_LEFT;
                 break;
             case SDL_SCANCODE_SPACE:
-                player.currentAction =  JUMP;
+                player.currentAction = JUMP;
                 break;
             case SDL_SCANCODE_LSHIFT:
-                player.currentAction =  RUN;
+                player.currentAction = RUN;
                 break;
             case SDL_SCANCODE_E:
                 player.currentAction = ATTACK;
                 break;
             default:
-                player.currentAction =  IDLE;
+                player.currentAction = IDLE;
                 break;
         }
     }
