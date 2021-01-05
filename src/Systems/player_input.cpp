@@ -1,4 +1,5 @@
 #include "player_input.hpp"
+
 #include "../Components/player.hpp"
 
 void playerInput(entt::registry &reg, SDL_Scancode scancode){
@@ -11,21 +12,25 @@ void playerInput(entt::registry &reg, SDL_Scancode scancode){
             case SDL_SCANCODE_D:
             case SDL_SCANCODE_RIGHT:
                 player.currentAction = WALK_RIGHT;
-                player.direction = LOOKING_RIGHT;
+                player.direction     = LOOKING_RIGHT;
                 break;
             case SDL_SCANCODE_A:
             case SDL_SCANCODE_LEFT:
                 player.currentAction = WALK_LEFT;
-                player.direction = LOOKING_LEFT;
+                player.direction     = LOOKING_LEFT;
                 break;
             case SDL_SCANCODE_SPACE:
                 player.currentAction = JUMP;
                 break;
             case SDL_SCANCODE_LSHIFT:
-                player.currentAction = RUN;
+                player.currentAction = RUN_LEFT;
+                player.direction     = LOOKING_LEFT;
                 break;
             case SDL_SCANCODE_E:
                 player.currentAction = ATTACK;
+                break;
+            case SDL_SCANCODE_R:
+                player.currentAction = RESET;
                 break;
             default:
                 player.currentAction = IDLE;
