@@ -37,14 +37,20 @@ std::string getPlayerActionString(PlayerAction action){
         case JUMP:
             actionString = "JUMP";
             break;
-        case RUN:
-            actionString = "RUN";
+        case RUN_RIGHT:
+            actionString = "RUN_RIGHT";
+            break;
+        case RUN_LEFT:
+            actionString = "RUN_LEFT";
             break;
         case IDLE:
             actionString = "IDLE";
             break;
         case ATTACK:
             actionString = "ATTACK";
+            break;
+        case RESET:
+            actionString = "RESET";
             break;
         default:
             actionString = "NONE";
@@ -53,52 +59,65 @@ std::string getPlayerActionString(PlayerAction action){
     return actionString;
 }
 
-void renderPlayer(SDL_Renderer *renderer, entt::registry &reg, GameSettings* game) {
-    const auto view = reg.view<Player, Position, Velocity, Force, IdleSprite, RunSprite, WalkSprite>();
+void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Position position, Sprite sprite, int & total_sprite_frames){
+    total_sprite_frames = sprite.total_frames;
+    SDL_Rect currentClip = sprite.spriteClips[game->FRAMES/total_sprite_frames];
+    SDL_Rect renderQuad = {(int) position.x, (int) position.y, currentClip.w+50, currentClip.h+50};
+    
+    if(player.direction == LOOKING_LEFT){
+        SDL_RenderCopyEx(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);                 
+    } else{
+        SDL_RenderCopy(renderer, sprite.textureSheet, &currentClip, &renderQuad);                
+    }             
+}
+
+void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
+    const auto view = reg.view<Player, Position, Velocity, Force, IdleSprite, RunSprite, WalkSprite, JumpSprite>();
+    for(const entt::entity e : view){
+        const auto player     = view.get<Player>(e);
+        const auto position   = view.get<Position>(e);
+        const auto velocity   = view.get<Velocity>(e);
+        const auto force      = view.get<Force>(e);
+        const auto walkSprite = view.get<WalkSprite>(e);
+        const auto runSprite  = view.get<RunSprite>(e);
+        const auto idleSprite = view.get<IdleSprite>(e);
+        const auto jumpSprite = view.get<JumpSprite>(e);
+
+        int total_sprite_frames = 1;
+        if((player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT) ){
+            renderSprite(renderer, game, player, position, walkSprite, total_sprite_frames);
+        }
+
+        if((player.currentAction == RUN_LEFT || player.currentAction == RUN_RIGHT)){
+            renderSprite(renderer, game, player, position, runSprite, total_sprite_frames);
+        }
+
+        if(player.currentAction == IDLE){
+            renderSprite(renderer, game, player, position, idleSprite, total_sprite_frames);
+        }
+
+        if(player.currentAction == JUMP){
+            renderSprite(renderer, game, player, position, jumpSprite, total_sprite_frames);
+        }
+
+        game->FRAMES += 1;        
+
+        if((game->FRAMES / total_sprite_frames) >= total_sprite_frames){
+            game->FRAMES = 0;
+        }       
+    }   
+}
+
+void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
+    const auto view = reg.view<Player, Position, Velocity, Force>();
     for(const entt::entity e : view){
         const auto player   = view.get<Player>(e);
         const auto position = view.get<Position>(e);
         const auto velocity = view.get<Velocity>(e);
         const auto force    = view.get<Force>(e);
-
-        int total_sprite_frames = 1;
-        if((player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT) ){
-            const auto runSprite = view.get<WalkSprite>(e);
-            total_sprite_frames = runSprite.total_frames;
-            SDL_Rect currentClip = runSprite.spriteClips[game->FRAMES/total_sprite_frames];
-            SDL_Rect renderQuad = {(int) position.x, (int) position.y, currentClip.w+50, currentClip.h+50};
-            
-            if(player.currentAction == WALK_RIGHT){
-                SDL_RenderCopy(renderer, runSprite.textureSheet, &currentClip, &renderQuad);                
-            } else{
-                SDL_RenderCopyEx(renderer, runSprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL); 
-            }             
-        }        
-
-        if(player.currentAction == IDLE){
-            const auto idleSprite = view.get<IdleSprite>(e);
-            total_sprite_frames = idleSprite.total_frames;
-            SDL_Rect currentClip = idleSprite.spriteClips[game->FRAMES/total_sprite_frames];
-            SDL_Rect renderQuad = {(int) position.x, (int) position.y, currentClip.w+50, currentClip.h+50};
-
-            if(player.direction == LOOKING_LEFT){
-                SDL_RenderCopyEx(renderer, idleSprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
-            } else {
-                SDL_RenderCopy(renderer, idleSprite.textureSheet, &currentClip, &renderQuad);
-            }
-        }
-
-        // if(game->FRAMES %2 == 0){
-            game->FRAMES += 1;
-        // }
         
-
-        if((game->FRAMES / total_sprite_frames) >= total_sprite_frames){
-            game->FRAMES = 0;
-        }       
-        
-        SDL_Color color = { 0x08, 0x4c, 0x61 };
-        SDL_Rect dest = {10, 10, 0, 0};
+        SDL_Color color     = { 0x08, 0x4c, 0x61 };
+        SDL_Rect dest       = {10, 10, 0, 0};
 
         std::string lastAction = getPlayerActionString(player.lastAction);
         std::string currentAction = getPlayerActionString(player.currentAction);
@@ -118,7 +137,7 @@ void renderPlayer(SDL_Renderer *renderer, entt::registry &reg, GameSettings* gam
         renderText(renderer, game->FONT, dest, color, "Velocity x: " + std::to_string(velocity.x) + ", y: " + std::to_string(velocity.y));
         dest.y += 25;
         renderText(renderer, game->FONT, dest, color, "Force x: " + std::to_string(force.x) + ", y: " + std::to_string(force.y));
-    }   
+    }
 }
 
 

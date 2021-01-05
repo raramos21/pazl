@@ -5,12 +5,11 @@
 
 #include "../Util/sdl_check.hpp"
 #include "../Components/player.hpp"
+#include "../Systems/player_input.hpp"
+#include "../Systems/player_movement.hpp"
 
 #include <SDL_image.h>
 #include <math.h>
-
-#include "../Systems/player_input.hpp"
-#include "../Systems/player_movement.hpp"
 
 void gameInit(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
     const entt::entity player = makePlayer(renderer, reg, game);
@@ -31,6 +30,7 @@ void gameLogic(entt::registry& reg, double t, float dt) {
 void gameRender(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
     // renderFrameRate(renderer, game);
     renderPlayer(renderer, reg, game);
+    renderPlayerInfo(renderer, reg, game);
 }
 
 void gameQuit(SDL_Window* window, SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {

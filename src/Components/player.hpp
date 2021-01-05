@@ -12,7 +12,8 @@ enum PlayerAction {
     JUMP,
     RUN,
     IDLE,
-    ATTACK
+    ATTACK,
+    RESET
 };
 
 enum PlayerDirection {
@@ -67,6 +68,7 @@ struct Sprite {
 
 struct IdleSprite : public Sprite {};
 struct WalkSprite : public Sprite {};
+struct JumpSprite : public Sprite {};
 struct RunSprite : public Sprite {};
 struct AttackSprite : public Sprite {};
 struct DieSprite : public Sprite {};

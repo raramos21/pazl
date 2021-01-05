@@ -10,5 +10,6 @@
 void renderText(SDL_Renderer *, TTF_Font*, SDL_Rect,  SDL_Color, const std::string);
 void renderFrameRate(SDL_Renderer*, GameSettings* );
 void renderPlayer(SDL_Renderer *, entt::registry &, GameSettings*);
+void renderPlayerInfo(SDL_Renderer *, entt::registry &, GameSettings*);
 
 #endif
