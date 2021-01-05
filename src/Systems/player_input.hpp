@@ -5,6 +5,6 @@
 #include <SDL_scancode.h>
 
 void playerInput(entt::registry &, SDL_Scancode);
-void playerDefault(entt::registry &);
+void playerDefault(entt::registry &, SDL_Scancode);
 
 #endif

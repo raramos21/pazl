@@ -70,7 +70,7 @@ int main(int argc, char* args[]) {
             } else if(e.type == SDL_KEYDOWN){
                 gameInput(reg, e.key.keysym.scancode);               
             } else if(e.type == SDL_KEYUP){
-                gameDefaultInput(reg);
+                gameDefaultInput(reg, e.key.keysym.scancode);
             }
         }
 

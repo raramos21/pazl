@@ -19,8 +19,8 @@ void gameInput(entt::registry& reg, SDL_Scancode scancode) {
     playerInput(reg, scancode);
 }
 
-void gameDefaultInput(entt::registry& reg) {    
-    playerDefault(reg);
+void gameDefaultInput(entt::registry& reg, SDL_Scancode scancode) {    
+    playerDefault(reg, scancode);
 }
 
 void gameLogic(entt::registry& reg, double t, float dt) {    

@@ -9,7 +9,7 @@
 
 void gameInit(SDL_Renderer*, entt::registry &, GameSettings*);
 void gameInput(entt::registry &,  SDL_Scancode);
-void gameDefaultInput(entt::registry &);
+void gameDefaultInput(entt::registry &, SDL_Scancode);
 void gameLogic(entt::registry &, double, float);
 void gameRender(SDL_Renderer*, entt::registry &, GameSettings*);
 void gameQuit(SDL_Window*, SDL_Renderer*, entt::registry &, GameSettings*);
