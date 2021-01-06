@@ -2,31 +2,13 @@
 
 #include "../Components/player.hpp"
 
-class inputHandler{
-    enum State{
-        PRESSED,
-        RELEASED
-    };
-    State inputState[];
-
-    void handleInputEvent(SDL_Scancode scancode){
-        if(inputState[scancode] == PRESSED){
-            inputState[scancode] = RELEASED;
-        }
-        inputState[scancode] = PRESSED;
+void playerInput(entt::registry &reg, SDL_Scancode scancode, InputHandler inputHandler){
+    printf("playerinput");
+    if(inputHandler.isPressed(SDL_SCANCODE_D) && inputHandler.isPressed(SDL_SCANCODE_A)){
+        printf("two buttons pressed as at the same time");
     }
 
-    bool isPressed(SDL_Scancode scancode){
-        return (inputState[scancode] == PRESSED);
-    }
-
-    bool isReleased(SDL_Scancode scancode){
-        return (inputState[scancode] == RELEASED);
-    }
-};
-
-void playerInput(entt::registry &reg, SDL_Scancode scancode){
-    inputHandler.handleInputEvent(scancode);
+    // inputHandler.handleInputEvent(scancode);
     // const auto view = reg.view<Player>();
     // for(const entt::entity e: view) {
     //     auto &player = view.get<Player>(e);        
@@ -64,7 +46,7 @@ void playerInput(entt::registry &reg, SDL_Scancode scancode){
 }
 
 void playerDefault(entt::registry &reg, SDL_Scancode scancode){
-    inputHandler.handleInput(scancode);
+    // inputHandler.handleInput(scancode);
     // const auto view = reg.view<Player>();
     // for(const entt::entity e: view) {
     //     auto &player = view.get<Player>(e);        

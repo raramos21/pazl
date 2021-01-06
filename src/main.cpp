@@ -12,9 +12,12 @@
 #include "Core/game.hpp"
 #include "Core/load.hpp"
 #include "Core/render.hpp"
+#include "Core/input_handler.hpp"
 #include "Components/game_settings.hpp"
 
 int main(int argc, char* args[]) {
+    InputHandler inputHandler;
+    entt::registry reg;
     GameSettings game;
     game.WIDTH           = 1500;
     game.HEIGHT          =  800;
@@ -27,7 +30,6 @@ int main(int argc, char* args[]) {
     game.AVERAGE_FPS     = 0.0;
     game.CURRENT_PERF    = 0.0;
 
-    entt::registry reg;
     
     int imgFlags = IMG_INIT_PNG | IMG_INIT_JPG;
 
@@ -65,21 +67,26 @@ int main(int argc, char* args[]) {
 
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0){
-            if(e.type == SDL_QUIT){
-                game.QUIT = true;
-            } else if(e.type == SDL_KEYDOWN){
-                gameInput(reg, e.key.keysym.scancode);               
-            } else if(e.type == SDL_KEYUP){
-                gameDefaultInput(reg, e.key.keysym.scancode);
+            switch(e.type){
+                case SDL_QUIT:
+                    game.QUIT = true;
+                    break;
+                case SDL_KEYDOWN:
+                case SDL_KEYUP:
+                    inputHandler.handleInputEvent(e.key.keysym.scancode);
+                    
+                    break;
             }
         }
+
+        gameInput(reg, e.key.keysym.scancode, inputHandler); 
 
         while(accumulator >= dt) {
             // previousState = currentState;
             gameLogic(reg, t, dt);
             accumulator -= dt;
             t += dt;            
-        }     
+        }
 
         SDL_SetRenderDrawColor(gRenderer, 0xf3, 0xf4, 0xf6, 255);
         SDL_RenderClear(gRenderer);

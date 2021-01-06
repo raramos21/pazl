@@ -15,8 +15,8 @@ void gameInit(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
     const entt::entity player = makePlayer(renderer, reg, game);
 }
 
-void gameInput(entt::registry& reg, SDL_Scancode scancode) {    
-    playerInput(reg, scancode);
+void gameInput(entt::registry& reg, SDL_Scancode scancode, InputHandler inputHandler) {    
+    playerInput(reg, scancode, inputHandler);
 }
 
 void gameDefaultInput(entt::registry& reg, SDL_Scancode scancode) {    

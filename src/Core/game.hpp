@@ -6,9 +6,10 @@
 #include <SDL_scancode.h>
 #include <entt/entity/registry.hpp>
 #include "../Components/game_settings.hpp"
+#include "../Core/input_handler.hpp"
 
 void gameInit(SDL_Renderer*, entt::registry &, GameSettings*);
-void gameInput(entt::registry &,  SDL_Scancode);
+void gameInput(entt::registry &,  SDL_Scancode, InputHandler);
 void gameDefaultInput(entt::registry &, SDL_Scancode);
 void gameLogic(entt::registry &, double, float);
 void gameRender(SDL_Renderer*, entt::registry &, GameSettings*);

@@ -4,7 +4,9 @@
 #include <entt/entity/registry.hpp>
 #include <SDL_scancode.h>
 
-void playerInput(entt::registry &, SDL_Scancode);
+#include "../Core/input_handler.hpp"
+
+void playerInput(entt::registry &, SDL_Scancode, InputHandler);
 void playerDefault(entt::registry &, SDL_Scancode);
 
 #endif
