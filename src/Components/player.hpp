@@ -23,6 +23,8 @@ enum PlayerDirection {
 
 struct Player {
     int health;
+    bool isJumping;
+    bool isFalling;
     float mass;
     PlayerAction lastAction;
     PlayerAction currentAction;
@@ -66,11 +68,12 @@ struct Sprite {
     std::vector<SDL_Rect> spriteClips;
 };
 
-struct IdleSprite : public Sprite {};
-struct WalkSprite : public Sprite {};
-struct JumpSprite : public Sprite {};
-struct RunSprite : public Sprite {};
+struct IdleSprite   : public Sprite {};
+struct WalkSprite   : public Sprite {};
+struct JumpSprite   : public Sprite {};
+struct RunSprite    : public Sprite {};
+struct DieSprite    : public Sprite {};
 struct AttackSprite : public Sprite {};
-struct DieSprite : public Sprite {};
+
 
 #endif

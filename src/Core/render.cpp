@@ -67,7 +67,7 @@ void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Pos
     if(player.direction == LOOKING_LEFT){
         SDL_RenderCopyEx(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);                 
     } else{
-        SDL_RenderCopy(renderer, sprite.textureSheet, &currentClip, &renderQuad);                
+        SDL_RenderCopyEx(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_NONE);                
     }             
 }
 
@@ -84,19 +84,23 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
         const auto jumpSprite = view.get<JumpSprite>(e);
 
         int total_sprite_frames = 1;
-        if((player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT) ){
-            renderSprite(renderer, game, player, position, walkSprite, total_sprite_frames);
+        if(player.currentAction != player.lastAction){
+            game->FRAMES = 0;
         }
+        
+        if(!player.isJumping){
+            if(player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT){      
+                renderSprite(renderer, game, player, position, walkSprite, total_sprite_frames);
+            }
 
-        if((player.currentAction == RUN_LEFT || player.currentAction == RUN_RIGHT)){
-            renderSprite(renderer, game, player, position, runSprite, total_sprite_frames);
-        }
+            if(player.currentAction == RUN_LEFT || player.currentAction == RUN_RIGHT){
+                renderSprite(renderer, game, player, position, runSprite, total_sprite_frames);
+            }
 
-        if(player.currentAction == IDLE){
-            renderSprite(renderer, game, player, position, idleSprite, total_sprite_frames);
-        }
-
-        if(player.currentAction == JUMP){
+            if(player.currentAction == IDLE){
+                renderSprite(renderer, game, player, position, idleSprite, total_sprite_frames);
+            }
+        } else {
             renderSprite(renderer, game, player, position, jumpSprite, total_sprite_frames);
         }
 

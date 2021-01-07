@@ -2,6 +2,18 @@
 
 #include "../Components/player.hpp"
 
+const float X_WALK_FORCE      = 3500.0f;
+
+const float X_RUN_FORCE       = 100.0f;
+const float X_RUN_START_FORCE = 3500.0F;
+const float X_RUN_MAX_FORCE   = 6000.0F;
+
+const float Y_JUMP_FORCE      = 2200.0f;
+const float Y_FALL_FORCE      = 3200.0f;
+
+const float Y_FLOOR           = 350.0f; // FLOOR
+const float Y_CEILING         = 300.0f; // CEILING
+
 void playerMovement(entt::registry & reg, float dt){
     const auto view = reg.view<Player, Position, Velocity, Force>();
     for(const entt::entity e: view) {
@@ -12,71 +24,76 @@ void playerMovement(entt::registry & reg, float dt){
 
         switch(player.currentAction){
             case WALK_RIGHT:
-                force.x = 1000.0f;
-                velocity.x = (force.x/player.mass) * dt;
-                position.x += velocity.x * dt;
+                force.x = X_WALK_FORCE;
                 break;
             case WALK_LEFT:
-                force.x = -1000.0f;
-                velocity.x = (force.x/player.mass) * dt;
-                position.x += velocity.x * dt;
+                force.x = -X_WALK_FORCE;
                 break;
-            case RUN_RIGHT:
-                if(player.lastAction == WALK_RIGHT){
-                    if(force.x < 2000.0f){
-                        force.x += 60.0f;
+            case RUN_RIGHT:{
+                if(player.lastAction == RUN_RIGHT){
+                    if(force.x < X_RUN_MAX_FORCE){
+                        force.x += X_RUN_FORCE;
                     } 
                 } else {
-                    force.x = 500.0f;
+                    force.x = X_RUN_START_FORCE;
                 }                
-                velocity.x = (force.x/player.mass) * dt;
-                position.x += velocity.x * dt;
                 break;
-            case RUN_LEFT:
-                if(player.lastAction == WALK_LEFT){
-                    if(force.x > -2000.0f){
-                        force.x -= 60.0f;
+            }                
+            case RUN_LEFT:{
+                if(player.lastAction == RUN_LEFT){
+                    if(force.x > -X_RUN_MAX_FORCE){
+                        force.x -= X_RUN_FORCE;
                     }
                 } else {
-                    force.x = -500.0f;
+                    force.x = -X_RUN_START_FORCE;
                 }                
-                velocity.x = (force.x/player.mass) * dt;
-                position.x += velocity.x * dt;
                 break;
+            }                
             case JUMP: {
-                float gravity = +9.8f;
-                float floor = 377.0f;
-                float ceiling = 350.0f;
-
-                if(position.y > floor){
-                    position.y = floor;
-                } else {
-                    if(position.y < ceiling){
-                        force.y += 400.0f;
-                    } else {
-                        force.y -= 400.0f;
-                    }                    
-
-                    velocity.y = (force.y/player.mass) * dt;
-                    position.y += velocity.y * dt;
-                }
-                
+                if(!player.isJumping){
+                    player.isJumping = true;
+                    force.y = -Y_JUMP_FORCE;
+                }          
                 break;
-            } 
-            case RUN:
-                
-                break;
+            }
             case IDLE:
-                
+                force.x = 0;
+                force.y = 0;
                 break;
             case ATTACK:
-                
                 break;
             case RESET:
-                position.y = 377.0f;
+                position.y = Y_FLOOR;
+                force.x = 0;
+                force.y = 0;
                 break;
             default:               
                 break;
         }
+        
+        velocity.x = (force.x/player.mass) * dt;
+        position.x += velocity.x * dt;
+
+        if(player.isJumping && !player.isFalling) {
+            force.y -= Y_JUMP_FORCE;
+        }
+
+        if(player.isFalling){
+            force.y += Y_FALL_FORCE;
+        }
+
+        velocity.y = (force.y/player.mass) * dt;
+        position.y += velocity.y * dt;
+
+        if(position.y < Y_CEILING){
+            player.isFalling = true;
+        }
+
+        if(position.y > Y_FLOOR){
+            player.isFalling = false;
+            player.isJumping = false;
+            force.y = 0.0f;
+            position.y = Y_FLOOR;
+        }       
     }
 }

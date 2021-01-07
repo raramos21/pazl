@@ -12,15 +12,14 @@
 #include "Core/game.hpp"
 #include "Core/load.hpp"
 #include "Core/render.hpp"
-#include "Core/input_handler.hpp"
 #include "Components/game_settings.hpp"
 
 int main(int argc, char* args[]) {
-    InputHandler inputHandler;
     entt::registry reg;
     GameSettings game;
+
     game.WIDTH           = 1500;
-    game.HEIGHT          =  800;
+    game.HEIGHT          = 800;
     game.FRAMES          = 0;
     game.FPS_CAP         = 120;
     game.TICKS_PER_FRAME = 1000 / game.FPS_CAP;
@@ -38,7 +37,7 @@ int main(int argc, char* args[]) {
     SDL_CHECK(TTF_Init());
     SDL_CHECK(loadFramerateFont(&game));
     SDL_Window* gWindow{SDL_CHECK(SDL_CreateWindow("Pazl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, game.WIDTH, game.HEIGHT, SDL_WINDOW_SHOWN))};
-    SDL_Renderer* gRenderer{SDL_CHECK(SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED ))}; //| SDL_RENDERER_PRESENTVSYNC))};     
+    SDL_Renderer* gRenderer{SDL_CHECK(SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED))}; // | SDL_RENDERER_PRESENTVSYNC))};     
     
     gameInit(gRenderer, reg, &game);
 
@@ -52,6 +51,9 @@ int main(int argc, char* args[]) {
     Uint32 totalFrames     = 0; // will be changed when adding a more robust game loop.
 
     while(!game.QUIT) {
+        SDL_SetRenderDrawColor(gRenderer, 0xf3, 0xf4, 0xf6, 255);       
+        SDL_RenderClear(gRenderer); 
+
         Uint32 startTicks = SDL_GetTicks(); // @Temp
         Uint64 startPerf  = SDL_GetPerformanceCounter(); // @Temp
 
@@ -72,14 +74,15 @@ int main(int argc, char* args[]) {
                     game.QUIT = true;
                     break;
                 case SDL_KEYDOWN:
+                    break;
                 case SDL_KEYUP:
-                    inputHandler.handleInputEvent(e.key.keysym.scancode);
-                    
+                    gameDefaultInput(reg, e.key.keysym.scancode);
                     break;
             }
         }
 
-        gameInput(reg, e.key.keysym.scancode, inputHandler); 
+        const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+        gameInput(reg, e.key.keysym.scancode, currentKeyStates); 
 
         while(accumulator >= dt) {
             // previousState = currentState;
@@ -88,9 +91,7 @@ int main(int argc, char* args[]) {
             t += dt;            
         }
 
-        SDL_SetRenderDrawColor(gRenderer, 0xf3, 0xf4, 0xf6, 255);
-        SDL_RenderClear(gRenderer);
-
+    
         gameRender(gRenderer, reg, &game);                
 
 
@@ -107,6 +108,7 @@ int main(int argc, char* args[]) {
 
         SDL_RenderPresent(gRenderer);
         
+
         
         if( (frameTimeF * 1000) < game.TICKS_PER_FRAME ) 
         {            
@@ -114,6 +116,7 @@ int main(int argc, char* args[]) {
             SDL_Delay( game.TICKS_PER_FRAME - (frameTimeF * 1000) );
         } 
         
+           
     }
 
     gameQuit(gWindow, gRenderer, reg, &game);

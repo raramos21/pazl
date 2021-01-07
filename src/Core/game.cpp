@@ -11,29 +11,29 @@
 #include <SDL_image.h>
 #include <math.h>
 
-void gameInit(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
+void gameInit(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
     const entt::entity player = makePlayer(renderer, reg, game);
 }
 
-void gameInput(entt::registry& reg, SDL_Scancode scancode, InputHandler inputHandler) {    
-    playerInput(reg, scancode, inputHandler);
+void gameInput(entt::registry& reg, SDL_Scancode scancode, const Uint8* currentKeyStates){    
+    playerInput(reg, scancode, currentKeyStates);
 }
 
-void gameDefaultInput(entt::registry& reg, SDL_Scancode scancode) {    
+void gameDefaultInput(entt::registry& reg, SDL_Scancode scancode){    
     playerDefault(reg, scancode);
 }
 
-void gameLogic(entt::registry& reg, double t, float dt) {    
+void gameLogic(entt::registry& reg, double t, float dt){    
     playerMovement(reg, dt);
 }
 
-void gameRender(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
+void gameRender(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
     // renderFrameRate(renderer, game);
     renderPlayer(renderer, reg, game);
     renderPlayerInfo(renderer, reg, game);
 }
 
-void gameQuit(SDL_Window* window, SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
+void gameQuit(SDL_Window* window, SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
     const auto view = reg.view<IdleSprite, RunSprite>();
     for(const entt::entity e : view){
         auto &idleSprite = view.get<IdleSprite>(e);
