@@ -1,6 +1,6 @@
 #include "factories.hpp"
 
-#include "../Components/player.hpp"
+#include "../Components/components.hpp"
 #include "../Util/sdl_check.hpp"
 #include "../Core/load.hpp"
 
@@ -26,7 +26,7 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     auto &idleSprite = reg.emplace<IdleSprite>(e);
     SDL_CHECK(loadSpriteFromFile(renderer, idleSprite, "assets/player/Woodcutter_idle.png"));
 
-    idleSprite.total_frames = 8;    
+    idleSprite.total_frames = 4;    
     SDL_Rect idle1{ 0, 0, 40, 45};
     SDL_Rect idle2{ 45, 0, 40, 45};
     SDL_Rect idle3{ 90, 0, 40, 45};
@@ -119,4 +119,12 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     
     
     return e;
+}
+
+entt::entity makeLevelOne(SDL_Renderer * renderer, entt::registry &reg, GameSettings* game){
+    const entt::entity e = reg.create();
+    auto &level = reg.emplace<Level>(e);
+    auto &platformOne = reg.emplace<Platform>(e);
+
+    
 }

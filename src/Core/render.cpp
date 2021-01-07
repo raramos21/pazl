@@ -1,6 +1,6 @@
 #include "render.hpp"
 
-#include "../Components/player.hpp"
+#include "../Components/components.hpp"
 
 void renderText(SDL_Renderer *renderer, TTF_Font* gFont, SDL_Rect dest,  SDL_Color color, const std::string text){
 	SDL_Surface* surf = TTF_RenderText_Solid(gFont, text.c_str(), color);

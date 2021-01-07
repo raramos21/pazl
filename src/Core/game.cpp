@@ -4,7 +4,7 @@
 #include "render.hpp"
 
 #include "../Util/sdl_check.hpp"
-#include "../Components/player.hpp"
+#include "../Components/components.hpp"
 #include "../Systems/player_input.hpp"
 #include "../Systems/player_movement.hpp"
 

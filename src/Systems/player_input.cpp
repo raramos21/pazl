@@ -43,7 +43,6 @@ void playerInput(entt::registry &reg, SDL_Scancode scancode, const Uint8* curren
 }
 
 void playerDefault(entt::registry &reg, SDL_Scancode scancode){
-    // inputHandler.handleInput(scancode);
     const auto view = reg.view<Player>();
     for(const entt::entity e: view) {
         auto &player = view.get<Player>(e);        

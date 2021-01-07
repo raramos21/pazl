@@ -7,5 +7,6 @@
 #include "../Components/game_settings.hpp"
 
 entt::entity makePlayer(SDL_Renderer*, entt::registry &, GameSettings*);
+entt::entity makeLevelOne(SDL_Renderer*, entt::registry &, GameSettings*);
 
 #endif

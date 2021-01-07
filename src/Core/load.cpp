@@ -1,9 +1,9 @@
 #include "load.hpp"
 
-#include "../Util/sdl_check.hpp"
-
 #include <SDL_image.h>
 #include <iostream>
+
+#include "../Util/sdl_check.hpp"
 
 bool loadFramerateFont(GameSettings* game) { 
     bool success = true;
@@ -30,8 +30,8 @@ bool loadSpriteFromFile(SDL_Renderer *renderer, Sprite &sprite, std::string path
         if(newTexture == NULL){
             printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
         } else {    
-            sprite.width  = loadedSurface->w;
-            sprite.height = loadedSurface->h;
+            sprite.size.width  = loadedSurface->w;
+            sprite.size.height = loadedSurface->h;
         }
         SDL_FreeSurface(loadedSurface);
     }

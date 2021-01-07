@@ -5,8 +5,7 @@
 #include <entt/entity/fwd.hpp>
 #include <string>
 
-#include "../Components/player.hpp"
-#include "../Components/game_settings.hpp"
+#include "../Components/components.hpp"
 
 bool loadFramerateFont(GameSettings* );
 bool loadSpriteFromFile(SDL_Renderer *, Sprite &, std::string );

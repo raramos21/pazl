@@ -1,6 +1,6 @@
 #include "player_movement.hpp"
 
-#include "../Components/player.hpp"
+#include "../Components/components.hpp"
 
 const float X_WALK_FORCE      = 3500.0f;
 
@@ -8,11 +8,11 @@ const float X_RUN_FORCE       = 100.0f;
 const float X_RUN_START_FORCE = 3500.0F;
 const float X_RUN_MAX_FORCE   = 6000.0F;
 
-const float Y_JUMP_FORCE      = 2200.0f;
-const float Y_FALL_FORCE      = 3200.0f;
+const float Y_JUMP_FORCE      = 2800.0f;
+const float Y_FALL_FORCE      = 3300.0f;
 
-const float Y_FLOOR           = 350.0f; // FLOOR
-const float Y_CEILING         = 300.0f; // CEILING
+const float Y_FLOOR           = 350.0f; 
+const float Y_CEILING         = 300.0f; 
 
 void playerMovement(entt::registry & reg, float dt){
     const auto view = reg.view<Player, Position, Velocity, Force>();
