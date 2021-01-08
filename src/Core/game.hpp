@@ -7,12 +7,13 @@
 #include <entt/entity/registry.hpp>
 #include "../Components/game_settings.hpp"
 
-void gameInit(SDL_Renderer*, entt::registry &, GameSettings*);
-void gameInput(entt::registry &,  SDL_Scancode, const Uint8*);
+GameSettings gameInit();
+void gameCreateEntities(SDL_Renderer*);
+void gameInput(SDL_Scancode, const Uint8*);
 void gameChangeLevels(SDL_Scancode);
-void gameDefaultInput(entt::registry &, SDL_Scancode);
-void gameLogic(entt::registry &, double, float);
-void gameRender(SDL_Renderer*, entt::registry &, GameSettings*);
-void gameQuit(SDL_Window*, SDL_Renderer*, entt::registry &, GameSettings*);
+void gameDefaultInput(SDL_Scancode);
+void gameLogic(double, float);
+void gameRender(SDL_Renderer*);
+void gameQuit(SDL_Window*, SDL_Renderer*);
 
 #endif

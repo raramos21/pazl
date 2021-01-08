@@ -8,7 +8,7 @@
 
 const Size DEFAULT_SPRITE{40, 45};
 
-entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettings* game){
+entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettings game){
     const entt::entity e = reg.create();
     auto &player = reg.emplace<Player>(e);
     auto &position = reg.emplace<Position>(e);
@@ -45,8 +45,8 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     idleSprite.size.width = DEFAULT_SPRITE.width * 2;
     idleSprite.size.height = DEFAULT_SPRITE.height * 2;
 
-    position.x = (game->WIDTH  - idleSprite.spriteClips[0].w)/2;
-    position.y = 350.0f;// (game->HEIGHT - idleSprite.spriteClips[0].h)/2;
+    position.x = (game.WIDTH  - idleSprite.spriteClips[0].w)/2;
+    position.y = 350.0f;// (game.HEIGHT - idleSprite.spriteClips[0].h)/2;
 
     auto &runSprite = reg.emplace<RunSprite>(e);
     SDL_CHECK(loadSpriteFromFile(renderer, runSprite, "assets/player/Woodcutter_run.png"));
@@ -126,7 +126,7 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     return e;
 }
 
-entt::entity makeLevel(SDL_Renderer * renderer, entt::registry &reg, GameSettings* game, float widthPer, float heightPer, Color color, std::string name){
+entt::entity makeLevel(SDL_Renderer * renderer, entt::registry &reg, GameSettings game, float widthPer, float heightPer, Color color, std::string name){
     const entt::entity e = reg.create();
     auto &level     = reg.emplace<Level>(e);
     auto &size      = reg.emplace<Size>(e);
@@ -135,11 +135,11 @@ entt::entity makeLevel(SDL_Renderer * renderer, entt::registry &reg, GameSetting
 
     level.name = name;
 
-    size.width  = game->WIDTH  * widthPer;
-    size.height = game->HEIGHT * heightPer;
+    size.width  = game.WIDTH  * widthPer;
+    size.height = game.HEIGHT * heightPer;
 
-    position.x = (game->WIDTH / 2) - (size.width / 2);
-    position.y = (game->HEIGHT / 2) - (size.height / 2);
+    position.x = (game.WIDTH / 2) - (size.width / 2);
+    position.y = (game.HEIGHT / 2) - (size.height / 2);
 
     colorComp.red   = color.red;
     colorComp.green = color.green;

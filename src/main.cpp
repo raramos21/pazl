@@ -7,39 +7,23 @@
 #include <SDL_ttf.h>
 #include <entt/entt.hpp>
 
-#include "Math/Mat44.hpp"
 #include "Util/sdl_check.hpp"
 #include "Core/game.hpp"
-#include "Core/load.hpp"
-#include "Core/render.hpp"
 #include "Components/components.hpp"
 
 int main(int argc, char* args[]) {
-    entt::registry reg;
-    GameSettings game;
-
-    game.WIDTH           = 1500;
-    game.HEIGHT          = 800;
-    game.FRAMES          = 0;
-    game.FPS_CAP         = 60;
-    game.TICKS_PER_FRAME = 1000 / game.FPS_CAP;
-    game.QUIT            = false;
-    game.FONT            = NULL;
-    game.CURRENT_FPS     = 0.0;
-    game.AVERAGE_FPS     = 0.0;
-    game.CURRENT_PERF    = 0.0;
-
-    
     int imgFlags = IMG_INIT_PNG | IMG_INIT_JPG;
 
     SDL_CHECK(SDL_Init(SDL_INIT_VIDEO));        
     SDL_CHECK((IMG_Init(imgFlags) & imgFlags));
     SDL_CHECK(TTF_Init());
-    SDL_CHECK(loadFramerateFont(&game));
+
+    GameSettings game = gameInit();
+
     SDL_Window* gWindow{SDL_CHECK(SDL_CreateWindow("Pazl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, game.WIDTH, game.HEIGHT, SDL_WINDOW_SHOWN))};
     SDL_Renderer* gRenderer{SDL_CHECK(SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC))};     
     
-    gameInit(gRenderer, reg, &game);
+    gameCreateEntities(gRenderer);
 
     double t = 0.0;
     float dt = 0.1;
@@ -77,21 +61,21 @@ int main(int argc, char* args[]) {
                     gameChangeLevels(e.key.keysym.scancode);
                     break;
                 case SDL_KEYUP:
-                    gameDefaultInput(reg, e.key.keysym.scancode);
+                    gameDefaultInput(e.key.keysym.scancode);
                     break;
             }
         }
 
         const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
-        gameInput(reg, e.key.keysym.scancode, currentKeyStates); 
+        gameInput(e.key.keysym.scancode, currentKeyStates); 
 
         while(accumulator >= dt) {
-            gameLogic(reg, t, dt);
+            gameLogic(t, dt);
             accumulator -= dt;
             t += dt;            
         }
     
-        gameRender(gRenderer, reg, &game);                
+        gameRender(gRenderer);                
 
         Uint32 endTicks  = SDL_GetTicks();                                      // @Temp
         Uint64 endPerf   = SDL_GetPerformanceCounter();                         // @Temp
@@ -102,8 +86,6 @@ int main(int argc, char* args[]) {
         game.AVERAGE_FPS  = 1000.0f / ((float)totalFrameTicks / totalFrames);
         game.CURRENT_PERF = framePerf;
 
-        // renderFrameRate(gRenderer, &game);
-
         SDL_RenderPresent(gRenderer);
         
         if( (frameTimeF * 1000) < game.TICKS_PER_FRAME ) 
@@ -113,7 +95,7 @@ int main(int argc, char* args[]) {
         }           
     }
 
-    gameQuit(gWindow, gRenderer, reg, &game);
+    gameQuit(gWindow, gRenderer);
 
     return 0;
 }

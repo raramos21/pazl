@@ -1,22 +1,47 @@
 #include "game.hpp"
 
-#include "factories.hpp"
-#include "render.hpp"
-
-#include "../Util/sdl_check.hpp"
-#include "../Components/components.hpp"
-#include "../Systems/player_input.hpp"
-#include "../Systems/player_movement.hpp"
-
 #include <SDL_image.h>
 #include <math.h>
 #include <vector>
 
+#include "../Core/factories.hpp"
+#include "../Core/render.hpp"
+#include "../Core/load.hpp"
+#include "../Util/sdl_check.hpp"
+#include "../Components/components.hpp"
+#include "../Systems/player_input.hpp"
+#include "../Systems/player_movement.hpp"
+#include "../Systems/change_levels.hpp"
+#include "../Systems/player_initial_position.hpp"
+
+GameSettings game;
 int currentLevel = 0;
+
+entt::registry reg;
+entt::entity player;
+
 std::vector<entt::entity> levels;
 
-void gameInit(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
-    const entt::entity player = makePlayer(renderer, reg, game);
+GameSettings gameInit(){
+    game.WIDTH           = 1500;
+    game.HEIGHT          = 800;
+    game.FRAMES          = 0;
+    game.FPS_CAP         = 60;
+    game.TICKS_PER_FRAME = 1000 / game.FPS_CAP;
+    game.QUIT            = false;
+    game.FONT            = NULL;
+    game.CURRENT_FPS     = 0.0;
+    game.AVERAGE_FPS     = 0.0;
+    game.CURRENT_PERF    = 0.0;
+
+    SDL_CHECK(loadFramerateFont(&game));
+
+    return game;
+}
+
+void gameCreateEntities(SDL_Renderer* renderer){
+    player = makePlayer(renderer, reg, game);
+
     Color color;
     color.red   = 37;
     color.green = 112;
@@ -44,46 +69,34 @@ void gameInit(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
     levels.push_back(makeLevel(renderer, reg, game, 1, 1, color, "Level Five"));
 }
 
-void gameInput(entt::registry& reg, SDL_Scancode scancode, const Uint8* currentKeyStates){
+void gameInput(SDL_Scancode scancode, const Uint8* currentKeyStates){
     playerInput(reg, scancode, currentKeyStates);
 }
 
 void gameChangeLevels(SDL_Scancode scancode){
-    switch(scancode){
-        case SDL_SCANCODE_COMMA:
-            currentLevel -= 1;
-            if(currentLevel < 0 ){
-                currentLevel = 0;
-            }
-            break;
-        case SDL_SCANCODE_PERIOD:
-            currentLevel += 1;        
-            if(currentLevel >= levels.size()-1){
-                currentLevel = levels.size()-1;
-            }
-            break;
-        default:
-            break;
-    }  
+    changeLevels(scancode, currentLevel, levels.size()-1);
+    if(scancode == SDL_SCANCODE_COMMA || scancode == SDL_SCANCODE_PERIOD){
+        playerInitialPosition(reg, levels[currentLevel], player);
+    }    
 }
 
-void gameDefaultInput(entt::registry& reg, SDL_Scancode scancode){    
+void gameDefaultInput(SDL_Scancode scancode){    
     playerDefault(reg, scancode);
 }
 
-void gameLogic(entt::registry& reg, double t, float dt){    
+void gameLogic(double t, float dt){    
     playerMovement(reg, dt, levels[currentLevel]);
 }
 
-void gameRender(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
+void gameRender(SDL_Renderer* renderer){
     // renderFrameRate(renderer, game);
     renderLevel(renderer, reg, game, levels[currentLevel]);
-    renderPlayer(renderer, reg, game);
+    renderPlayer(renderer, reg, &game);
     renderLevelInfo(renderer, reg, game, levels[currentLevel]);
     renderPlayerInfo(renderer, reg, game);
 }
 
-void gameQuit(SDL_Window* window, SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
+void gameQuit(SDL_Window* window, SDL_Renderer* renderer){
     const auto view = reg.view<IdleSprite, RunSprite>();
     for(const entt::entity e : view){
         auto &idleSprite = view.get<IdleSprite>(e);
@@ -95,7 +108,7 @@ void gameQuit(SDL_Window* window, SDL_Renderer* renderer, entt::registry &reg, G
         runSprite.textureSheet  = NULL;
     }
 
-    game->FONT = NULL;
+    game.FONT = NULL;
 
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);

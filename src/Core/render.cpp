@@ -129,7 +129,7 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
 
 
 
-void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
+void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings game){
     const auto view = reg.view<Player, Position, Velocity, Force>();
     for(const entt::entity e : view){
         const auto player   = view.get<Player>(e);
@@ -149,25 +149,25 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings*
         SDL_RenderFillRect(renderer, &fillRect);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
         
-        renderText(renderer, game->FONT, textPosition, color, "Current action: " + currentAction);
+        renderText(renderer, game.FONT, textPosition, color, "Current action: " + currentAction);
         textPosition.y += 25;
-        renderText(renderer, game->FONT, textPosition, color, "Last action: " + lastAction);
+        renderText(renderer, game.FONT, textPosition, color, "Last action: " + lastAction);
         textPosition.y += 25;
-        renderText(renderer, game->FONT, textPosition, color, "Position x: " + std::to_string(position.x) + ", y: " + std::to_string(position.y));
+        renderText(renderer, game.FONT, textPosition, color, "Position x: " + std::to_string(position.x) + ", y: " + std::to_string(position.y));
         textPosition.y += 25;
-        renderText(renderer, game->FONT, textPosition, color, "Health: " + std::to_string(player.health));
+        renderText(renderer, game.FONT, textPosition, color, "Health: " + std::to_string(player.health));
         textPosition.y += 25;
-        renderText(renderer, game->FONT, textPosition, color, "Mass: " + std::to_string(player.mass));
+        renderText(renderer, game.FONT, textPosition, color, "Mass: " + std::to_string(player.mass));
         textPosition.y += 25;
-        renderText(renderer, game->FONT, textPosition, color, "Acceleration x: " + std::to_string(force.x / player.mass));
+        renderText(renderer, game.FONT, textPosition, color, "Acceleration x: " + std::to_string(force.x / player.mass));
         textPosition.y += 25;
-        renderText(renderer, game->FONT, textPosition, color, "Velocity x: " + std::to_string(velocity.x) + ", y: " + std::to_string(velocity.y));
+        renderText(renderer, game.FONT, textPosition, color, "Velocity x: " + std::to_string(velocity.x) + ", y: " + std::to_string(velocity.y));
         textPosition.y += 25;
-        renderText(renderer, game->FONT, textPosition, color, "Force x: " + std::to_string(force.x) + ", y: " + std::to_string(force.y));      
+        renderText(renderer, game.FONT, textPosition, color, "Force x: " + std::to_string(force.x) + ", y: " + std::to_string(force.y));      
     }
 }
 
-void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game, entt::entity e){
+void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, entt::entity e){
     auto level    = reg.get<Level>(e);
     auto position = reg.get<Position>(e);
     auto size     = reg.get<Size>(e);
@@ -178,20 +178,20 @@ void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game
     SDL_RenderFillRect(renderer, &fillRect);
 }
 
-void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game, entt::entity e){
+void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, entt::entity e){
     SDL_Color color       = { 0x29, 0x2f, 0x36 };
-    SDL_Rect textPosition = { 10, game->HEIGHT-35, 0, 0 };
+    SDL_Rect textPosition = { 10, game.HEIGHT-35, 0, 0 };
     
     auto level = reg.get<Level>(e);
 
-    SDL_Rect fillRect = {0, game->HEIGHT-40, 300, game->HEIGHT};
+    SDL_Rect fillRect = {0, game.HEIGHT-40, 300, game.HEIGHT};
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_RenderFillRect(renderer, &fillRect);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
 
-    renderText(renderer, game->FONT, textPosition, color, level.name);
+    renderText(renderer, game.FONT, textPosition, color, level.name);
 }
 
 
