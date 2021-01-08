@@ -36,7 +36,12 @@ void gameInit(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
     color.red   = 255;
     color.green = 238; 
     color.blue  = 11;
-    levels.push_back(makeLevel(renderer, reg, game, 0.8, 0.3, color, "Level Four"));
+    levels.push_back(makeLevel(renderer, reg, game, 0.95, 0.3, color, "Level Four"));
+
+    color.red   = 0;
+    color.green = 39; 
+    color.blue  = 43;
+    levels.push_back(makeLevel(renderer, reg, game, 1, 1, color, "Level Five"));
 }
 
 void gameInput(entt::registry& reg, SDL_Scancode scancode, const Uint8* currentKeyStates){

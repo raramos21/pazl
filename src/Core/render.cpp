@@ -11,7 +11,7 @@ void renderText(SDL_Renderer *renderer, TTF_Font* gFont, SDL_Rect dest,  SDL_Col
 	dest.h = surf->h+1;
 
     SDL_Texture* shadowTex = SDL_CreateTextureFromSurface(renderer, shadowSurf);
-	SDL_RenderCopy(renderer, shadowTex, NULL, &dest);
+	// SDL_RenderCopy(renderer, shadowTex, NULL, &dest);
 
     dest.w -= 1;
     dest.h -= 1;
@@ -142,6 +142,12 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings*
 
         std::string lastAction = getPlayerActionString(player.lastAction);
         std::string currentAction = getPlayerActionString(player.currentAction);
+
+        SDL_Rect fillRect = {0, 0, 450, 220};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_RenderFillRect(renderer, &fillRect);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
         
         renderText(renderer, game->FONT, textPosition, color, "Current action: " + currentAction);
         textPosition.y += 25;
@@ -157,7 +163,7 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings*
         textPosition.y += 25;
         renderText(renderer, game->FONT, textPosition, color, "Velocity x: " + std::to_string(velocity.x) + ", y: " + std::to_string(velocity.y));
         textPosition.y += 25;
-        renderText(renderer, game->FONT, textPosition, color, "Force x: " + std::to_string(force.x) + ", y: " + std::to_string(force.y));
+        renderText(renderer, game->FONT, textPosition, color, "Force x: " + std::to_string(force.x) + ", y: " + std::to_string(force.y));      
     }
 }
 
@@ -173,10 +179,17 @@ void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game
 }
 
 void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game, entt::entity e){
-    SDL_Color color       = { 0x08, 0x4c, 0x61 };
+    SDL_Color color       = { 0x29, 0x2f, 0x36 };
     SDL_Rect textPosition = { 10, game->HEIGHT-35, 0, 0 };
     
     auto level = reg.get<Level>(e);
+
+    SDL_Rect fillRect = {0, game->HEIGHT-40, 300, game->HEIGHT};
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_RenderFillRect(renderer, &fillRect);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+
 
     renderText(renderer, game->FONT, textPosition, color, level.name);
 }
