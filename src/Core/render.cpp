@@ -107,9 +107,6 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
         const auto jumpSprite = view.get<JumpSprite>(e);
 
         int total_sprite_frames = 1;
-        // if(player.currentAction != player.lastAction){
-        //     game->FRAMES = 0;
-        // }
         
         if(!player.isJumping){
             if(player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT){      
@@ -127,11 +124,7 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
             renderSprite(renderer, game, player, position, jumpSprite, total_sprite_frames);
         }
 
-        game->FRAMES += 1;        
-
-        // if((game->FRAMES / total_sprite_frames) >= total_sprite_frames){
-        //     game->FRAMES = 0;
-        // }      
+        game->FRAMES += 1;
 
         if(game->FRAMES >= total_sprite_frames){
             game->FRAMES = 0;
