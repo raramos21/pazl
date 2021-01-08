@@ -72,12 +72,20 @@ std::string getPlayerActionString(PlayerAction action){
 
 void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Position position, Sprite sprite, int & total_sprite_frames){
     total_sprite_frames = sprite.total_frames;
-    SDL_Rect currentClip = sprite.spriteClips[game->FRAMES/total_sprite_frames];
+    // int clip = game->FRAMES / total_sprite_frames;
+    int clip = game->FRAMES;
+    SDL_Rect currentClip = sprite.spriteClips[clip];
     SDL_Rect renderQuad = {(int) position.x, (int) position.y, sprite.size.width, sprite.size.height};
 
+    // Render red rectangle around sprite.
     SDL_Rect fillRect = {(int) position.x, (int) position.y, sprite.size.width, sprite.size.height};
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
     SDL_RenderDrawRect(renderer, &fillRect);
+
+    // Render current clip number.
+    SDL_Color color       = { 0xff, 0xff, 0xff };
+    SDL_Rect textPosition = {(int) position.x + 5, (int) position.y + 2, 0, 0};
+    renderText(renderer, game->FONT, textPosition, color, std::to_string(clip));    
     
     if(player.direction == LOOKING_LEFT){
         SDL_RenderCopyEx(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);                 
@@ -99,9 +107,9 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
         const auto jumpSprite = view.get<JumpSprite>(e);
 
         int total_sprite_frames = 1;
-        if(player.currentAction != player.lastAction){
-            game->FRAMES = 0;
-        }
+        // if(player.currentAction != player.lastAction){
+        //     game->FRAMES = 0;
+        // }
         
         if(!player.isJumping){
             if(player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT){      
@@ -112,7 +120,7 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
                 renderSprite(renderer, game, player, position, runSprite, total_sprite_frames);
             }
 
-            if(player.currentAction == IDLE){
+            if(player.currentAction == IDLE || player.currentAction == JUMP){
                 renderSprite(renderer, game, player, position, idleSprite, total_sprite_frames);
             }
         } else {
@@ -121,9 +129,13 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
 
         game->FRAMES += 1;        
 
-        if((game->FRAMES / total_sprite_frames) >= total_sprite_frames){
+        // if((game->FRAMES / total_sprite_frames) >= total_sprite_frames){
+        //     game->FRAMES = 0;
+        // }      
+
+        if(game->FRAMES >= total_sprite_frames){
             game->FRAMES = 0;
-        }       
+        } 
     }   
 }
 
@@ -137,9 +149,6 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings 
         const auto velocity = view.get<Velocity>(e);
         const auto force    = view.get<Force>(e);
         
-        SDL_Color color       = { 0x29, 0x2f, 0x36 };
-        SDL_Rect textPosition = {10, 10, 0, 0};
-
         std::string lastAction = getPlayerActionString(player.lastAction);
         std::string currentAction = getPlayerActionString(player.currentAction);
 
@@ -148,6 +157,9 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings 
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderFillRect(renderer, &fillRect);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+
+        SDL_Color color       = { 0x29, 0x2f, 0x36 };
+        SDL_Rect textPosition = {10, 10, 0, 0};
         
         renderText(renderer, game.FONT, textPosition, color, "Current action: " + currentAction);
         textPosition.y += 25;

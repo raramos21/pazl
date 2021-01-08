@@ -1,17 +1,28 @@
+/*
+    Currently all player movement and collisions with the level bounderies happen here.
+    But a more robust collision systems where multiple enitities can interact with each other
+    will have to be made and this code will have to be refactored.
+    - Raul 1/18/2021
+*/
+
 #include "player_movement.hpp"
 
 #include "../Components/components.hpp"
 
-const float X_WALK_FORCE      = 3500.0f;
+const float X_WALK_FORCE      = 3000.0f;
 
 const float X_RUN_FORCE       = 100.0f;
-const float X_RUN_START_FORCE = 3500.0F;
-const float X_RUN_MAX_FORCE   = 6000.0F;
+const float X_RUN_START_FORCE = 3500.0f;
+const float X_RUN_MAX_FORCE   = 6000.0f;
 
 const float Y_JUMP_FORCE      = 2800.0f;
 const float Y_FALL_FORCE      = 3300.0f;
 
 const float Y_JUMP_MAX_HEIGHT = 60.0f; 
+
+const float MAX_JUMP_DAMPENING = 0.1f; // MILLISECONDS
+
+float jumpDampening = 0.0f;
 
 void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
     const auto level         = reg.get<Level>(levelEntity);
@@ -65,10 +76,10 @@ void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
                 break;
             }                
             case JUMP: {
-                if(!player.isJumping){
+                if(!player.isJumping && jumpDampening >= MAX_JUMP_DAMPENING){
                     player.isJumping = true;
                     force.y = -Y_JUMP_FORCE;
-                }          
+                }     
                 break;
             }
             case IDLE:
@@ -87,44 +98,56 @@ void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
         }
 
 
-        // SET X POSITION
+        // SET X-AXIS VELOCITY & POSITION
         {    
+            // Calculate the velocity and position of the players x-axis.
             velocity.x = (force.x/player.mass) * dt;
             position.x += velocity.x * dt;
 
+            // Clamp player to right edge of level if position
+            // is greater than the levels width.
             if(position.x > maxX){
                 position.x = maxX;
             }
 
+            // Same as before but on the left side.
             if(position.x < minX){
                 position.x = minX;
             }
         }       
 
 
-        // SET Y POSITION
+        // SET Y-AXIS VELOCITY & POSITION
         {
+            // Player is still in his jumping action but not yet
+            // falling, so we continue to increase his jump force.
             if(player.isJumping && !player.isFalling) {
                 force.y -= Y_JUMP_FORCE;
             }
 
+            // Player is now falling so we inverse his y-force until he reaches the ground.
             if(player.isFalling){
                 force.y += Y_FALL_FORCE;
             }
 
+            // Calculate the velocity and position of the players y-axis.
             velocity.y = (force.y/player.mass) * dt;
             position.y += velocity.y * dt;
 
+            if(!player.isJumping) jumpDampening += dt;
+            
             if(position.y < minY){
+                // Clamp the y-axis position to the levels height
+                // if level height is shorter than the default jump height.
+                // So must fall!!
                 position.y = minY;
                 player.isFalling = true;
-            }
-
-            if(position.y < jumpHeight){
+            } else if(position.y <= jumpHeight){
+                // Player has reached the max jump height and is now falling.
                 player.isFalling = true;
-            }
-
-            if(position.y > maxY){
+            } else if(position.y > maxY){
+                // Player has reached the floor/maxY so he has stopped falling and jumping.
+                jumpDampening = 0.0f;
                 player.isFalling = false;
                 player.isJumping = false;
                 force.y = 0.0f;
