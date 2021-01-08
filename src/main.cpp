@@ -74,6 +74,7 @@ int main(int argc, char* args[]) {
                     game.QUIT = true;
                     break;
                 case SDL_KEYDOWN:
+                    gameChangeLevels(e.key.keysym.scancode);
                     break;
                 case SDL_KEYUP:
                     gameDefaultInput(reg, e.key.keysym.scancode);
@@ -85,15 +86,12 @@ int main(int argc, char* args[]) {
         gameInput(reg, e.key.keysym.scancode, currentKeyStates); 
 
         while(accumulator >= dt) {
-            // previousState = currentState;
             gameLogic(reg, t, dt);
             accumulator -= dt;
             t += dt;            
         }
-
     
         gameRender(gRenderer, reg, &game);                
-
 
         Uint32 endTicks  = SDL_GetTicks();                                      // @Temp
         Uint64 endPerf   = SDL_GetPerformanceCounter();                         // @Temp
@@ -108,15 +106,11 @@ int main(int argc, char* args[]) {
 
         SDL_RenderPresent(gRenderer);
         
-
-        
         if( (frameTimeF * 1000) < game.TICKS_PER_FRAME ) 
         {            
             //Sleep the remaining frame time
             SDL_Delay( game.TICKS_PER_FRAME - (frameTimeF * 1000) );
-        } 
-        
-           
+        }           
     }
 
     gameQuit(gWindow, gRenderer, reg, &game);

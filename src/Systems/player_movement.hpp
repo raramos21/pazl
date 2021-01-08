@@ -3,6 +3,6 @@
 
 #include <entt/entity/registry.hpp>
 
-void playerMovement(entt::registry &, float);
+void playerMovement(entt::registry &, float, entt::entity);
 
 #endif

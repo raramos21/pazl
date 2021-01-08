@@ -30,8 +30,8 @@ bool loadSpriteFromFile(SDL_Renderer *renderer, Sprite &sprite, std::string path
         if(newTexture == NULL){
             printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
         } else {    
-            sprite.size.width  = loadedSurface->w;
-            sprite.size.height = loadedSurface->h;
+            sprite.textureSheetSize.width  = loadedSurface->w;
+            sprite.textureSheetSize.height = loadedSurface->h;
         }
         SDL_FreeSurface(loadedSurface);
     }

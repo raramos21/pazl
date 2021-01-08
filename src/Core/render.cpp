@@ -3,16 +3,27 @@
 #include "../Components/components.hpp"
 
 void renderText(SDL_Renderer *renderer, TTF_Font* gFont, SDL_Rect dest,  SDL_Color color, const std::string text){
-	SDL_Surface* surf = TTF_RenderText_Solid(gFont, text.c_str(), color);
+	SDL_Color shadowColor = { 255, 255, 255 };
+    SDL_Surface* surf = TTF_RenderText_Solid(gFont, text.c_str(), color);
+    SDL_Surface* shadowSurf = TTF_RenderText_Solid(gFont, text.c_str(), shadowColor);
 
-	dest.w = surf->w;
-	dest.h = surf->h;
+	dest.w = surf->w+1;
+	dest.h = surf->h+1;
+
+    SDL_Texture* shadowTex = SDL_CreateTextureFromSurface(renderer, shadowSurf);
+	SDL_RenderCopy(renderer, shadowTex, NULL, &dest);
+
+    dest.w -= 1;
+    dest.h -= 1;
 
 	SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, surf);
-
 	SDL_RenderCopy(renderer, tex, NULL, &dest);
+
 	SDL_DestroyTexture(tex);
-	SDL_FreeSurface(surf);
+    SDL_FreeSurface(surf);
+
+    SDL_DestroyTexture(shadowTex);	
+    SDL_FreeSurface(shadowSurf);
 }
 
 void renderFrameRate(SDL_Renderer *renderer, GameSettings* game) {
@@ -62,7 +73,11 @@ std::string getPlayerActionString(PlayerAction action){
 void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Position position, Sprite sprite, int & total_sprite_frames){
     total_sprite_frames = sprite.total_frames;
     SDL_Rect currentClip = sprite.spriteClips[game->FRAMES/total_sprite_frames];
-    SDL_Rect renderQuad = {(int) position.x, (int) position.y, currentClip.w+50, currentClip.h+50};
+    SDL_Rect renderQuad = {(int) position.x, (int) position.y, sprite.size.width, sprite.size.height};
+
+    SDL_Rect fillRect = {(int) position.x, (int) position.y, sprite.size.width, sprite.size.height};
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
+    SDL_RenderDrawRect(renderer, &fillRect);
     
     if(player.direction == LOOKING_LEFT){
         SDL_RenderCopyEx(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);                 
@@ -71,7 +86,7 @@ void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Pos
     }             
 }
 
-void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
+void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
     const auto view = reg.view<Player, Position, Velocity, Force, IdleSprite, RunSprite, WalkSprite, JumpSprite>();
     for(const entt::entity e : view){
         const auto player     = view.get<Player>(e);
@@ -112,7 +127,9 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
     }   
 }
 
-void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game) {
+
+
+void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
     const auto view = reg.view<Player, Position, Velocity, Force>();
     for(const entt::entity e : view){
         const auto player   = view.get<Player>(e);
@@ -120,28 +137,48 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings*
         const auto velocity = view.get<Velocity>(e);
         const auto force    = view.get<Force>(e);
         
-        SDL_Color color     = { 0x08, 0x4c, 0x61 };
-        SDL_Rect dest       = {10, 10, 0, 0};
+        SDL_Color color       = { 0x29, 0x2f, 0x36 };
+        SDL_Rect textPosition = {10, 10, 0, 0};
 
         std::string lastAction = getPlayerActionString(player.lastAction);
         std::string currentAction = getPlayerActionString(player.currentAction);
         
-        renderText(renderer, game->FONT, dest, color, "Current action: " + currentAction);
-        dest.y += 25;
-        renderText(renderer, game->FONT, dest, color, "Last action: " + lastAction);
-        dest.y += 25;
-        renderText(renderer, game->FONT, dest, color, "Position x: " + std::to_string(position.x) + ", y: " + std::to_string(position.y));
-        dest.y += 25;
-        renderText(renderer, game->FONT, dest, color, "Health: " + std::to_string(player.health));
-        dest.y += 25;
-        renderText(renderer, game->FONT, dest, color, "Mass: " + std::to_string(player.mass));
-        dest.y += 25;
-        renderText(renderer, game->FONT, dest, color, "Acceleration x: " + std::to_string(force.x / player.mass));
-        dest.y += 25;
-        renderText(renderer, game->FONT, dest, color, "Velocity x: " + std::to_string(velocity.x) + ", y: " + std::to_string(velocity.y));
-        dest.y += 25;
-        renderText(renderer, game->FONT, dest, color, "Force x: " + std::to_string(force.x) + ", y: " + std::to_string(force.y));
+        renderText(renderer, game->FONT, textPosition, color, "Current action: " + currentAction);
+        textPosition.y += 25;
+        renderText(renderer, game->FONT, textPosition, color, "Last action: " + lastAction);
+        textPosition.y += 25;
+        renderText(renderer, game->FONT, textPosition, color, "Position x: " + std::to_string(position.x) + ", y: " + std::to_string(position.y));
+        textPosition.y += 25;
+        renderText(renderer, game->FONT, textPosition, color, "Health: " + std::to_string(player.health));
+        textPosition.y += 25;
+        renderText(renderer, game->FONT, textPosition, color, "Mass: " + std::to_string(player.mass));
+        textPosition.y += 25;
+        renderText(renderer, game->FONT, textPosition, color, "Acceleration x: " + std::to_string(force.x / player.mass));
+        textPosition.y += 25;
+        renderText(renderer, game->FONT, textPosition, color, "Velocity x: " + std::to_string(velocity.x) + ", y: " + std::to_string(velocity.y));
+        textPosition.y += 25;
+        renderText(renderer, game->FONT, textPosition, color, "Force x: " + std::to_string(force.x) + ", y: " + std::to_string(force.y));
     }
+}
+
+void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game, entt::entity e){
+    auto level    = reg.get<Level>(e);
+    auto position = reg.get<Position>(e);
+    auto size     = reg.get<Size>(e);
+    auto color    = reg.get<Color>(e);
+
+    SDL_Rect fillRect = {(int) position.x, (int) position.y, size.width, size.height};
+    SDL_SetRenderDrawColor(renderer, color.red, color.green, color.blue, color.alpha);
+    SDL_RenderFillRect(renderer, &fillRect);
+}
+
+void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game, entt::entity e){
+    SDL_Color color       = { 0x08, 0x4c, 0x61 };
+    SDL_Rect textPosition = { 10, game->HEIGHT-35, 0, 0 };
+    
+    auto level = reg.get<Level>(e);
+
+    renderText(renderer, game->FONT, textPosition, color, level.name);
 }
 
 

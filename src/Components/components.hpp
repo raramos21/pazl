@@ -1,3 +1,4 @@
+#include "color.hpp"
 #include "force.hpp"
 #include "game_settings.hpp"
 #include "level.hpp"

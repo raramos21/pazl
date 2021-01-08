@@ -6,6 +6,7 @@
 
 #include <entt/entity/registry.hpp>
 
+const Size DEFAULT_SPRITE{40, 45};
 
 entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettings* game){
     const entt::entity e = reg.create();
@@ -41,6 +42,9 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     idleSprite.spriteClips.push_back(idle4);
     idleSprite.spriteClips.push_back(idle4);
 
+    idleSprite.size.width = DEFAULT_SPRITE.width * 2;
+    idleSprite.size.height = DEFAULT_SPRITE.height * 2;
+
     position.x = (game->WIDTH  - idleSprite.spriteClips[0].w)/2;
     position.y = 350.0f;// (game->HEIGHT - idleSprite.spriteClips[0].h)/2;
 
@@ -67,11 +71,14 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     // runSprite.spriteClips.push_back(run5);
     runSprite.spriteClips.push_back(run6);
     // runSprite.spriteClips.push_back(run6);
+
+    runSprite.size.width = DEFAULT_SPRITE.width * 2;
+    runSprite.size.height = DEFAULT_SPRITE.height * 2;
     
     auto &walkSprite = reg.emplace<WalkSprite>(e);
     SDL_CHECK(loadSpriteFromFile(renderer, walkSprite, "assets/player/Woodcutter_walk.png"));
 
-    walkSprite.total_frames = 12;    
+    walkSprite.total_frames = 6;    
     SDL_Rect walk1{ 0, 0, 40, 45};
     SDL_Rect walk2{ 45, 0, 40, 45};
     SDL_Rect walk3{ 90, 0, 40, 45};
@@ -80,18 +87,14 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     SDL_Rect walk6{ 225, 0, 40, 45};
 
     walkSprite.spriteClips.push_back(walk1);
-    walkSprite.spriteClips.push_back(walk1);
-    walkSprite.spriteClips.push_back(walk2);
     walkSprite.spriteClips.push_back(walk2);
     walkSprite.spriteClips.push_back(walk3);
-    walkSprite.spriteClips.push_back(walk3);
-    walkSprite.spriteClips.push_back(walk4);
     walkSprite.spriteClips.push_back(walk4);
     walkSprite.spriteClips.push_back(walk5);
-    walkSprite.spriteClips.push_back(walk5);
-    walkSprite.spriteClips.push_back(walk6);
     walkSprite.spriteClips.push_back(walk6);
 
+    walkSprite.size.width = DEFAULT_SPRITE.width * 2;
+    walkSprite.size.height = DEFAULT_SPRITE.height * 2;
 
     auto &jumpSprite = reg.emplace<JumpSprite>(e);
     SDL_CHECK(loadSpriteFromFile(renderer, jumpSprite, "assets/player/Woodcutter_jump.png"));
@@ -117,14 +120,33 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     jumpSprite.spriteClips.push_back(jump6);
     // jumpSprite.spriteClips.push_back(jump6);
     
+    jumpSprite.size.width = DEFAULT_SPRITE.width * 2;
+    jumpSprite.size.height = DEFAULT_SPRITE.height * 2;
     
     return e;
 }
 
-entt::entity makeLevelOne(SDL_Renderer * renderer, entt::registry &reg, GameSettings* game){
+entt::entity makeLevel(SDL_Renderer * renderer, entt::registry &reg, GameSettings* game, float widthPer, float heightPer, Color color, std::string name){
     const entt::entity e = reg.create();
-    auto &level = reg.emplace<Level>(e);
-    auto &platformOne = reg.emplace<Platform>(e);
+    auto &level     = reg.emplace<Level>(e);
+    auto &size      = reg.emplace<Size>(e);
+    auto &position  = reg.emplace<Position>(e);
+    auto &colorComp = reg.emplace<Color>(e);
 
+    level.name = name;
+
+    size.width  = game->WIDTH  * widthPer;
+    size.height = game->HEIGHT * heightPer;
+
+    position.x = (game->WIDTH / 2) - (size.width / 2);
+    position.y = (game->HEIGHT / 2) - (size.height / 2);
+
+    colorComp.red   = color.red;
+    colorComp.green = color.green;
+    colorComp.blue  = color.blue;    
+    colorComp.alpha = color.alpha;
+
+    level.floor = position.y + size.height;
     
+    return e;
 }

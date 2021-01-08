@@ -10,13 +10,56 @@
 
 #include <SDL_image.h>
 #include <math.h>
+#include <vector>
+
+int currentLevel = 0;
+std::vector<entt::entity> levels;
 
 void gameInit(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
     const entt::entity player = makePlayer(renderer, reg, game);
+    Color color;
+    color.red   = 37;
+    color.green = 112;
+    color.blue  = 78;    
+    color.alpha = 255;
+    levels.push_back(makeLevel(renderer, reg, game, 0.8, 0.8, color, "Level One"));
+
+    color.green = 78; 
+    color.blue  = 112;
+    levels.push_back(makeLevel(renderer, reg, game, 0.6, 0.7, color, "Level Two"));
+
+    color.red   = 255;
+    color.green = 71; 
+    color.blue  = 71;
+    levels.push_back(makeLevel(renderer, reg, game, 0.4, 0.8, color, "Level Three"));
+
+    color.red   = 255;
+    color.green = 238; 
+    color.blue  = 11;
+    levels.push_back(makeLevel(renderer, reg, game, 0.8, 0.3, color, "Level Four"));
 }
 
-void gameInput(entt::registry& reg, SDL_Scancode scancode, const Uint8* currentKeyStates){    
+void gameInput(entt::registry& reg, SDL_Scancode scancode, const Uint8* currentKeyStates){
     playerInput(reg, scancode, currentKeyStates);
+}
+
+void gameChangeLevels(SDL_Scancode scancode){
+    switch(scancode){
+        case SDL_SCANCODE_COMMA:
+            currentLevel -= 1;
+            if(currentLevel < 0 ){
+                currentLevel = 0;
+            }
+            break;
+        case SDL_SCANCODE_PERIOD:
+            currentLevel += 1;        
+            if(currentLevel >= levels.size()-1){
+                currentLevel = levels.size()-1;
+            }
+            break;
+        default:
+            break;
+    }  
 }
 
 void gameDefaultInput(entt::registry& reg, SDL_Scancode scancode){    
@@ -24,12 +67,14 @@ void gameDefaultInput(entt::registry& reg, SDL_Scancode scancode){
 }
 
 void gameLogic(entt::registry& reg, double t, float dt){    
-    playerMovement(reg, dt);
+    playerMovement(reg, dt, levels[currentLevel]);
 }
 
 void gameRender(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
     // renderFrameRate(renderer, game);
+    renderLevel(renderer, reg, game, levels[currentLevel]);
     renderPlayer(renderer, reg, game);
+    renderLevelInfo(renderer, reg, game, levels[currentLevel]);
     renderPlayerInfo(renderer, reg, game);
 }
 

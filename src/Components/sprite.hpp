@@ -9,6 +9,7 @@
 struct Sprite{
     int total_frames;
     Size size;
+    Size textureSheetSize;
     SDL_Texture* textureSheet;
     std::vector<SDL_Rect> spriteClips;
 };

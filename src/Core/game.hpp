@@ -9,6 +9,7 @@
 
 void gameInit(SDL_Renderer*, entt::registry &, GameSettings*);
 void gameInput(entt::registry &,  SDL_Scancode, const Uint8*);
+void gameChangeLevels(SDL_Scancode);
 void gameDefaultInput(entt::registry &, SDL_Scancode);
 void gameLogic(entt::registry &, double, float);
 void gameRender(SDL_Renderer*, entt::registry &, GameSettings*);

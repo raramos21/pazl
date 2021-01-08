@@ -7,8 +7,8 @@
 #include "size.hpp"
 
 struct Platform{
-    // Position position;
-    // Size size;
+    Position position;
+    Size size;
 
     SDL_Texture* textureSheet;
 };

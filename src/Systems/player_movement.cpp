@@ -11,16 +11,31 @@ const float X_RUN_MAX_FORCE   = 6000.0F;
 const float Y_JUMP_FORCE      = 2800.0f;
 const float Y_FALL_FORCE      = 3300.0f;
 
-const float Y_FLOOR           = 350.0f; 
-const float Y_CEILING         = 300.0f; 
+const float Y_JUMP_MAX_HEIGHT = 60.0f; 
 
-void playerMovement(entt::registry & reg, float dt){
-    const auto view = reg.view<Player, Position, Velocity, Force>();
+void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
+    const auto level         = reg.get<Level>(levelEntity);
+    const auto levelSize     = reg.get<Size>(levelEntity);
+    const auto levelPosition = reg.get<Position>(levelEntity);
+    
+    const auto view  = reg.view<Player, Position, Velocity, Force, IdleSprite>();
+
+    float maxX    = levelSize.width + levelPosition.x;
+    float minX    = levelPosition.x;
+    float maxY    = level.floor;                          
+    float minY    = levelPosition.y;
+
     for(const entt::entity e: view) {
-        auto &player = view.get<Player>(e);
+        auto &player   = view.get<Player>(e);
         auto &position = view.get<Position>(e);
         auto &velocity = view.get<Velocity>(e);
-        auto &force = view.get<Force>(e);
+        auto &force    = view.get<Force>(e);
+        auto &sprite   = view.get<IdleSprite>(e);
+        
+        maxY -= sprite.size.height;
+        maxX -= sprite.size.width;
+
+        float jumpHeight = maxY - Y_JUMP_MAX_HEIGHT;
 
         switch(player.currentAction){
             case WALK_RIGHT:
@@ -63,37 +78,59 @@ void playerMovement(entt::registry & reg, float dt){
             case ATTACK:
                 break;
             case RESET:
-                position.y = Y_FLOOR;
+                position.y = maxY;
                 force.x = 0;
                 force.y = 0;
                 break;
             default:               
                 break;
         }
-        
-        velocity.x = (force.x/player.mass) * dt;
-        position.x += velocity.x * dt;
 
-        if(player.isJumping && !player.isFalling) {
-            force.y -= Y_JUMP_FORCE;
-        }
 
-        if(player.isFalling){
-            force.y += Y_FALL_FORCE;
-        }
+        // SET X POSITION
+        {    
+            velocity.x = (force.x/player.mass) * dt;
+            position.x += velocity.x * dt;
 
-        velocity.y = (force.y/player.mass) * dt;
-        position.y += velocity.y * dt;
+            if(position.x > maxX){
+                position.x = maxX;
+            }
 
-        if(position.y < Y_CEILING){
-            player.isFalling = true;
-        }
-
-        if(position.y > Y_FLOOR){
-            player.isFalling = false;
-            player.isJumping = false;
-            force.y = 0.0f;
-            position.y = Y_FLOOR;
+            if(position.x < minX){
+                position.x = minX;
+            }
         }       
+
+
+        // SET Y POSITION
+        {
+            if(player.isJumping && !player.isFalling) {
+                force.y -= Y_JUMP_FORCE;
+            }
+
+            if(player.isFalling){
+                force.y += Y_FALL_FORCE;
+            }
+
+            velocity.y = (force.y/player.mass) * dt;
+            position.y += velocity.y * dt;
+
+            if(position.y < minY){
+                position.y = minY;
+                player.isFalling = true;
+            }
+
+            if(position.y < jumpHeight){
+                player.isFalling = true;
+            }
+
+            if(position.y > maxY){
+                player.isFalling = false;
+                player.isJumping = false;
+                force.y = 0.0f;
+                position.y = maxY;
+            }       
+        }
+      
     }
 }
