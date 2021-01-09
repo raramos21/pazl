@@ -11,10 +11,11 @@
 #include "../Components/components.hpp"
 #include "../Systems/player_input.hpp"
 #include "../Systems/player_movement.hpp"
-#include "../Systems/change_levels.hpp"
 #include "../Systems/player_initial_position.hpp"
+#include "../Systems/change_levels.hpp"
 #include "../Systems/toggle_dev_info.hpp"
-#include "../Systems/set_camera.hpp"
+#include "../Systems/camera_position.hpp"
+#include "../Systems/camera_initial_position.hpp"
 
 GameSettings game;
 Camera       camera;
@@ -24,7 +25,7 @@ entt::entity player;
 
 std::vector<entt::entity> levels;
 
-int currentLevel = 3;
+int currentLevel = 4;
 bool showDevInfo = false;
 
 GameSettings gameInit(){
@@ -82,9 +83,10 @@ void gameCreateEntities(SDL_Renderer* renderer){
     color.green = 39; 
     color.blue  = 43;
     color.alpha = 255;
-    levels.push_back(makeLevel(renderer, reg, game, 1, 1, color, "Level Five"));
+    levels.push_back(makeLevel(renderer, reg, game, 1.10, 1, color, "Level Five"));
     
     playerInitialPosition(reg, levels[currentLevel], player);
+    cameraInitialPosition(reg, game, camera, player, levels[currentLevel]);
 }
 
 void gameInput(SDL_Scancode scancode, const Uint8* currentKeyStates){
@@ -93,7 +95,7 @@ void gameInput(SDL_Scancode scancode, const Uint8* currentKeyStates){
 
 void gameImmediateInput(SDL_Scancode scancode){
     toggleDevInfo(scancode, showDevInfo);
-    changeLevels(reg, scancode, player, currentLevel, levels);
+    changeLevels(reg, scancode, game, camera, player, currentLevel, levels);
 }
 
 void gameDefaultInput(SDL_Scancode scancode){    
@@ -105,7 +107,7 @@ void gameLogic(double t, float dt){
 }
 
 void gameRender(SDL_Renderer* renderer){
-    setCamera(renderer, reg, game, camera, player, levels[currentLevel]);
+    cameraPosition(reg, game, camera, player, levels[currentLevel]);
     // renderFrameRate(renderer, game);
     renderLevel(renderer, reg, game, camera, levels[currentLevel]);
     renderPlayer(renderer, reg, &game, camera, showDevInfo);
