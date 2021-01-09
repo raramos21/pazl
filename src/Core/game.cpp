@@ -13,9 +13,11 @@
 #include "../Systems/player_movement.hpp"
 #include "../Systems/change_levels.hpp"
 #include "../Systems/player_initial_position.hpp"
+#include "../Systems/toggle_dev_info.hpp"
 
 GameSettings game;
 int currentLevel = 0;
+bool showDevInfo = false;
 
 entt::registry reg;
 entt::entity player;
@@ -35,7 +37,6 @@ GameSettings gameInit(){
     game.CURRENT_PERF    = 0.0;
 
     SDL_CHECK(loadFramerateFont(&game));
-    // SDL_CHECK(loadGamePad())
 
     return game;
 }
@@ -78,11 +79,9 @@ void gameInput(SDL_Scancode scancode, const Uint8* currentKeyStates){
     playerInput(reg, scancode, currentKeyStates);
 }
 
-void gameChangeLevels(SDL_Scancode scancode){
-    changeLevels(scancode, currentLevel, levels.size()-1);
-    if(scancode == SDL_SCANCODE_COMMA || scancode == SDL_SCANCODE_PERIOD){
-        playerInitialPosition(reg, levels[currentLevel], player);
-    }    
+void gameImmediateInput(SDL_Scancode scancode){
+    toggleDevInfo(scancode, showDevInfo);
+    changeLevels(reg, scancode, player, currentLevel, levels);
 }
 
 void gameDefaultInput(SDL_Scancode scancode){    
@@ -96,7 +95,7 @@ void gameLogic(double t, float dt){
 void gameRender(SDL_Renderer* renderer){
     // renderFrameRate(renderer, game);
     renderLevel(renderer, reg, game, levels[currentLevel]);
-    renderPlayer(renderer, reg, &game);
+    renderPlayer(renderer, reg, &game, showDevInfo);
     renderLevelInfo(renderer, reg, game, levels[currentLevel]);
     renderPlayerInfo(renderer, reg, game);
 }

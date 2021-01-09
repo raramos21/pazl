@@ -70,7 +70,7 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     idleSprite.size.height = DEFAULT_SPRITE.height * 2;
 
     position.x = (game.WIDTH  - idleSprite.spriteClips[0].w)/2;
-    position.y = 350.0f;// (game.HEIGHT - idleSprite.spriteClips[0].h)/2;
+    position.y = (game.HEIGHT - idleSprite.spriteClips[0].h)/2;
 
     auto &runSprite = reg.emplace<RunSprite>(e);
     SDL_CHECK(loadSpriteFromFile(renderer, runSprite, "assets/player/Woodcutter_run_red.png"));
@@ -152,7 +152,7 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     walkSprite.spriteClips.push_back(walk6);
     walkSprite.spriteClips.push_back(walk6);
     walkSprite.spriteClips.push_back(walk6);
-    
+
     walkSprite.size.width  = DEFAULT_SPRITE.width * 2;
     walkSprite.size.height = DEFAULT_SPRITE.height * 2;
 

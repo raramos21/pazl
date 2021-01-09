@@ -48,7 +48,7 @@ int main(int argc, char* args[]) {
     gameCreateEntities(gRenderer);
 
     double t = 0.0;
-    float dt = 0.1;
+    float dt = 1.0f/120.0f;
     
     double currentTime = SDL_GetTicks() / 1000.0;
     double accumulator = 0.0;
@@ -80,7 +80,7 @@ int main(int argc, char* args[]) {
                     game.QUIT = true;
                     break;
                 case SDL_KEYDOWN:
-                    gameChangeLevels(e.key.keysym.scancode);
+                    gameImmediateInput(e.key.keysym.scancode);
                     break;
                 case SDL_KEYUP:
                     gameDefaultInput(e.key.keysym.scancode);

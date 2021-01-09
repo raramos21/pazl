@@ -10,7 +10,7 @@
 GameSettings gameInit();
 void gameCreateEntities(SDL_Renderer*);
 void gameInput(SDL_Scancode, const Uint8*);
-void gameChangeLevels(SDL_Scancode);
+void gameImmediateInput(SDL_Scancode);
 void gameDefaultInput(SDL_Scancode);
 void gameLogic(double, float);
 void gameRender(SDL_Renderer*);

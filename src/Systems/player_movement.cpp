@@ -9,16 +9,17 @@
 
 #include "../Components/components.hpp"
 
-const float X_WALK_FORCE      = 2500.0f;
+// const float X_WALK_FORCE      = 16000.0f;
+const float X_WALK_FORCE      = 30000.0f;
 
-const float X_RUN_FORCE       = 100.0f;
-const float X_RUN_START_FORCE = 3500.0f;
-const float X_RUN_MAX_FORCE   = 6000.0f;
+const float X_RUN_FORCE       = 1000.0f;
+const float X_RUN_START_FORCE = 35000.0f;
+const float X_RUN_MAX_FORCE   = 60000.0f;
 
-const float Y_JUMP_FORCE      = 3800.0f;
-const float Y_FALL_FORCE      = 7000.0f;
+const float Y_JUMP_FORCE      = 5000.0f;
+const float Y_FALL_FORCE      = 6000.0f;
 
-const float Y_JUMP_MAX_HEIGHT = 130.0f; 
+const float Y_JUMP_MAX_HEIGHT = 100.0f; 
 
 const float MAX_JUMP_DAMPENING = 0.1f; // MILLISECONDS
 
@@ -84,7 +85,7 @@ void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
             }
             case IDLE:
                 force.x = 0;
-                force.y = 0;
+                // force.y = 0;
                 break;
             case ATTACK:
                 break;
@@ -141,6 +142,7 @@ void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
                 // if level height is shorter than the default jump height.
                 // So must fall!!
                 position.y = minY;
+                force.y = -Y_FALL_FORCE;
                 player.isFalling = true;
             } else if(position.y <= jumpHeight){
                 // Player has reached the max jump height and is now falling.

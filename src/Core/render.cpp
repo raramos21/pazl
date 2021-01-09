@@ -70,23 +70,25 @@ std::string getPlayerActionString(PlayerAction action){
     return actionString;
 }
 
-void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Position position, Sprite sprite, int & total_sprite_frames){
+void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Position position, Sprite sprite, int & total_sprite_frames, bool showDevInfo){
     total_sprite_frames = sprite.total_frames;
-    // int clip = game->FRAMES;
-    int clip = 0;
+    int clip = game->FRAMES;
+    // int clip = 0;
 
     SDL_Rect currentClip = sprite.spriteClips[clip];
     SDL_FRect renderQuad = {position.x, position.y, (float) sprite.size.width, (float) sprite.size.height};
 
-    // Render red rectangle around sprite.
-    SDL_FRect fillRectF = {position.x, position.y, (float) sprite.size.width, (float) sprite.size.height};
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
-    SDL_RenderDrawRectF(renderer, &fillRectF);
+    if(showDevInfo){
+        // Render red rectangle around sprite.
+        SDL_FRect fillRectF = {position.x, position.y, (float) sprite.size.width, (float) sprite.size.height};
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
+        SDL_RenderDrawRectF(renderer, &fillRectF);
 
-    // Render current clip number.
-    SDL_Color color       = { 0xff, 0xff, 0xff };
-    SDL_Rect textPosition = {(int) position.x + 5, (int) position.y + 2, 0, 0};
-    renderText(renderer, game->FONT, textPosition, color, std::to_string(clip));    
+        // Render current clip number.
+        SDL_Color color       = { 0xff, 0xff, 0xff };
+        SDL_Rect textPosition = {(int) position.x + 5, (int) position.y + 2, 0, 0};
+        renderText(renderer, game->FONT, textPosition, color, std::to_string(clip));    
+    }    
     
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
     if(player.direction == LOOKING_LEFT){
@@ -97,7 +99,7 @@ void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Pos
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
-void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
+void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game, bool showDevInfo){
     const auto view = reg.view<Player, Position, Velocity, Force, IdleSprite, RunSprite, WalkSprite, JumpSprite>();
     for(const entt::entity e : view){
         const auto player     = view.get<Player>(e);
@@ -113,18 +115,18 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
         
         if(!player.isJumping){
             if(player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT){      
-                renderSprite(renderer, game, player, position, walkSprite, total_sprite_frames);
+                renderSprite(renderer, game, player, position, walkSprite, total_sprite_frames, showDevInfo);
             }
 
             if(player.currentAction == RUN_LEFT || player.currentAction == RUN_RIGHT){
-                renderSprite(renderer, game, player, position, runSprite, total_sprite_frames);
+                renderSprite(renderer, game, player, position, runSprite, total_sprite_frames, showDevInfo);
             }
 
             if(player.currentAction == IDLE || player.currentAction == JUMP){
-                renderSprite(renderer, game, player, position, idleSprite, total_sprite_frames);
+                renderSprite(renderer, game, player, position, idleSprite, total_sprite_frames, showDevInfo);
             }
         } else {
-            renderSprite(renderer, game, player, position, jumpSprite, total_sprite_frames);
+            renderSprite(renderer, game, player, position, jumpSprite, total_sprite_frames, showDevInfo);
         }
 
         game->FRAMES += 1;
@@ -134,8 +136,6 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
         } 
     }   
 }
-
-
 
 void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings game){
     const auto view = reg.view<Player, Position, Velocity, Force>();
@@ -148,7 +148,7 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings 
         std::string lastAction = getPlayerActionString(player.lastAction);
         std::string currentAction = getPlayerActionString(player.currentAction);
 
-        SDL_Rect fillRect = {0, 0, 450, 220};
+        SDL_Rect fillRect = {0, 0, 550, 220};
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderFillRect(renderer, &fillRect);
@@ -167,7 +167,7 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings 
         textPosition.y += 25;
         renderText(renderer, game.FONT, textPosition, color, "Mass: " + std::to_string(player.mass));
         textPosition.y += 25;
-        renderText(renderer, game.FONT, textPosition, color, "Acceleration x: " + std::to_string(force.x / player.mass));
+        renderText(renderer, game.FONT, textPosition, color, "Acceleration x: " + std::to_string(force.x / player.mass) + ", y: " + std::to_string(force.y / player.mass));
         textPosition.y += 25;
         renderText(renderer, game.FONT, textPosition, color, "Velocity x: " + std::to_string(velocity.x) + ", y: " + std::to_string(velocity.y));
         textPosition.y += 25;
