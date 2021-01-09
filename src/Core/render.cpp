@@ -70,23 +70,23 @@ std::string getPlayerActionString(PlayerAction action){
     return actionString;
 }
 
-void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Position position, Sprite sprite, int & total_sprite_frames, bool showDevInfo){
+void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Position position, Sprite sprite, Camera camera, int & total_sprite_frames, bool showDevInfo){
     total_sprite_frames = sprite.total_frames;
     int clip = game->FRAMES;
     // int clip = 0;
 
     SDL_Rect currentClip = sprite.spriteClips[clip];
-    SDL_FRect renderQuad = {position.x, position.y, (float) sprite.size.width, (float) sprite.size.height};
+    SDL_FRect renderQuad = {(position.x - camera.position.x), (position.y - camera.position.y), (float) sprite.size.width, (float) sprite.size.height};
 
     if(showDevInfo){
         // Render red rectangle around sprite.
-        SDL_FRect fillRectF = {position.x, position.y, (float) sprite.size.width, (float) sprite.size.height};
+        SDL_FRect fillRectF = {(position.x - camera.position.x), (position.y - camera.position.y), (float) sprite.size.width, (float) sprite.size.height};
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
         SDL_RenderDrawRectF(renderer, &fillRectF);
 
         // Render current clip number.
         SDL_Color color       = { 0xff, 0xff, 0xff };
-        SDL_Rect textPosition = {(int) position.x + 5, (int) position.y + 2, 0, 0};
+        SDL_Rect textPosition = {(int) (position.x - camera.position.x + 5), (int) (position.y - camera.position.y + 2), 0, 0};
         renderText(renderer, game->FONT, textPosition, color, std::to_string(clip));    
     }    
     
@@ -99,7 +99,7 @@ void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Pos
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
-void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game, bool showDevInfo){
+void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game, Camera camera, bool showDevInfo){
     const auto view = reg.view<Player, Position, Velocity, Force, IdleSprite, RunSprite, WalkSprite, JumpSprite>();
     for(const entt::entity e : view){
         const auto player     = view.get<Player>(e);
@@ -115,18 +115,18 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
         
         if(!player.isJumping){
             if(player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT){      
-                renderSprite(renderer, game, player, position, walkSprite, total_sprite_frames, showDevInfo);
+                renderSprite(renderer, game, player, position, walkSprite, camera, total_sprite_frames, showDevInfo);
             }
 
             if(player.currentAction == RUN_LEFT || player.currentAction == RUN_RIGHT){
-                renderSprite(renderer, game, player, position, runSprite, total_sprite_frames, showDevInfo);
+                renderSprite(renderer, game, player, position, runSprite, camera, total_sprite_frames, showDevInfo);
             }
 
             if(player.currentAction == IDLE || player.currentAction == JUMP){
-                renderSprite(renderer, game, player, position, idleSprite, total_sprite_frames, showDevInfo);
+                renderSprite(renderer, game, player, position, idleSprite, camera, total_sprite_frames, showDevInfo);
             }
         } else {
-            renderSprite(renderer, game, player, position, jumpSprite, total_sprite_frames, showDevInfo);
+            renderSprite(renderer, game, player, position, jumpSprite, camera, total_sprite_frames, showDevInfo);
         }
 
         game->FRAMES += 1;
@@ -175,16 +175,18 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings 
     }
 }
 
-void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, entt::entity e){
+void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity e){
     auto level    = reg.get<Level>(e);
     auto position = reg.get<Position>(e);
     auto size     = reg.get<Size>(e);
     auto color    = reg.get<Color>(e);
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_Rect fillRect = {(int) position.x, (int) position.y, size.width, size.height};
+    
+    SDL_FRect fillRect = {(position.x - camera.position.x), (position.y - camera.position.y), (float) size.width, (float) size.height};
     SDL_SetRenderDrawColor(renderer, color.red, color.green, color.blue, color.alpha);
-    SDL_RenderFillRect(renderer, &fillRect);
+    SDL_RenderFillRectF(renderer, &fillRect);
+
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 

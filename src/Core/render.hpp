@@ -5,12 +5,13 @@
 #include <SDL_rect.h>
 #include <entt/entity/registry.hpp>
 #include <string>
-#include "../Components/game_settings.hpp"
+
+#include "../Components/components.hpp"
 
 void renderText(SDL_Renderer *, TTF_Font*, SDL_Rect,  SDL_Color, const std::string);
 void renderFrameRate(SDL_Renderer*, GameSettings* );
-void renderPlayer(SDL_Renderer *, entt::registry &, GameSettings*, bool);
+void renderPlayer(SDL_Renderer *, entt::registry &, GameSettings*, Camera, bool);
 void renderPlayerInfo(SDL_Renderer *, entt::registry &, GameSettings);
-void renderLevel(SDL_Renderer*, entt::registry &, GameSettings, entt::entity);
+void renderLevel(SDL_Renderer*, entt::registry &, GameSettings, Camera, entt::entity);
 void renderLevelInfo(SDL_Renderer*, entt::registry &, GameSettings, entt::entity);
 #endif

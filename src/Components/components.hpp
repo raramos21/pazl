@@ -1,3 +1,4 @@
+#include "camera.hpp"
 #include "color.hpp"
 #include "force.hpp"
 #include "game_settings.hpp"

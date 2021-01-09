@@ -14,15 +14,18 @@
 #include "../Systems/change_levels.hpp"
 #include "../Systems/player_initial_position.hpp"
 #include "../Systems/toggle_dev_info.hpp"
+#include "../Systems/set_camera.hpp"
 
 GameSettings game;
-int currentLevel = 0;
-bool showDevInfo = false;
+Camera       camera;
 
 entt::registry reg;
 entt::entity player;
 
 std::vector<entt::entity> levels;
+
+int currentLevel = 3;
+bool showDevInfo = false;
 
 GameSettings gameInit(){
     game.WIDTH           = 1500;
@@ -35,6 +38,13 @@ GameSettings gameInit(){
     game.CURRENT_FPS     = 0.0;
     game.AVERAGE_FPS     = 0.0;
     game.CURRENT_PERF    = 0.0;
+
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.size.width = game.WIDTH;
+    camera.size.height = game.HEIGHT;
+
+    // camera.position.x -= 760;
 
     SDL_CHECK(loadFramerateFont(&game));
 
@@ -66,13 +76,15 @@ void gameCreateEntities(SDL_Renderer* renderer){
     color.green = 238; 
     color.blue  = 11;
     color.alpha = 255;
-    levels.push_back(makeLevel(renderer, reg, game, 0.95, 0.28, color, "Level Four"));
+    levels.push_back(makeLevel(renderer, reg, game, 5, 0.28, color, "Level Four"));
 
     color.red   = 0;
     color.green = 39; 
     color.blue  = 43;
     color.alpha = 255;
     levels.push_back(makeLevel(renderer, reg, game, 1, 1, color, "Level Five"));
+    
+    playerInitialPosition(reg, levels[currentLevel], player);
 }
 
 void gameInput(SDL_Scancode scancode, const Uint8* currentKeyStates){
@@ -93,9 +105,10 @@ void gameLogic(double t, float dt){
 }
 
 void gameRender(SDL_Renderer* renderer){
+    setCamera(renderer, reg, game, camera, player, levels[currentLevel]);
     // renderFrameRate(renderer, game);
-    renderLevel(renderer, reg, game, levels[currentLevel]);
-    renderPlayer(renderer, reg, &game, showDevInfo);
+    renderLevel(renderer, reg, game, camera, levels[currentLevel]);
+    renderPlayer(renderer, reg, &game, camera, showDevInfo);
     renderLevelInfo(renderer, reg, game, levels[currentLevel]);
     renderPlayerInfo(renderer, reg, game);
 }
