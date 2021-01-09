@@ -11,17 +11,39 @@
 #include "Core/game.hpp"
 #include "Components/components.hpp"
 
+// enum JoyStickDirection{
+//     LEFT,
+//     RIGHT
+// }
+
+// struct Controller{
+//     JoyStickDirectionxAxis
+// }
+
 int main(int argc, char* args[]) {
+    const int JOYSTICK_DEAD_ZONE = 10000;
     int imgFlags = IMG_INIT_PNG | IMG_INIT_JPG;
 
-    SDL_CHECK(SDL_Init(SDL_INIT_VIDEO));        
+    SDL_CHECK(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK));        
     SDL_CHECK((IMG_Init(imgFlags) & imgFlags));
     SDL_CHECK(TTF_Init());
+    SDL_CHECK(SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0"));
 
     GameSettings game = gameInit();
+    
 
     SDL_Window* gWindow{SDL_CHECK(SDL_CreateWindow("Pazl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, game.WIDTH, game.HEIGHT, SDL_WINDOW_SHOWN))};
     SDL_Renderer* gRenderer{SDL_CHECK(SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC))};     
+    SDL_Joystick* gGameController = NULL;
+
+    if(SDL_NumJoysticks() < 1){
+        printf("WARNING: No joysticks connected!\n");
+    } else{
+        gGameController = SDL_JoystickOpen(0);
+        if(gGameController == NULL){
+            printf( "Warning: Unable to open game controller! SDL Error: %s\n", SDL_GetError() );
+        }
+    }
     
     gameCreateEntities(gRenderer);
 
@@ -63,11 +85,41 @@ int main(int argc, char* args[]) {
                 case SDL_KEYUP:
                     gameDefaultInput(e.key.keysym.scancode);
                     break;
+                case SDL_JOYAXISMOTION:
+                    if( e.jaxis.which == 0 ){                        
+                        //X axis motion
+                        if( e.jaxis.axis == 0 ){
+                            //Left of dead zone
+                            if( e.jaxis.value < -JOYSTICK_DEAD_ZONE ){
+                                printf("x direction: %i\n", -1);
+                            }
+                            //Right of dead zone
+                            else if( e.jaxis.value > JOYSTICK_DEAD_ZONE ){
+                                printf("x direction: %i\n", 1);
+                            } else{
+                                printf("x direction: %i\n", 0);
+                            }
+                        } else if( e.jaxis.axis == 1 ){
+                            //Below of dead zone
+                            if( e.jaxis.value < -JOYSTICK_DEAD_ZONE ){
+                                printf("y direction: %i\n", -1);
+                            }
+                            //Above of dead zone
+                            else if( e.jaxis.value > JOYSTICK_DEAD_ZONE ){
+                                printf("y direction: %i\n", 1);
+                            }
+                            else{
+                                printf("y direction: %i\n", 0);
+                            }
+                        }
+                    }
+                    break;
             }
         }
 
         const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
         gameInput(e.key.keysym.scancode, currentKeyStates); 
+        // gameInputController();
 
         while(accumulator >= dt) {
             gameLogic(t, dt);
@@ -95,6 +147,8 @@ int main(int argc, char* args[]) {
         }           
     }
 
+    SDL_JoystickClose( gGameController );
+    gGameController = NULL;
     gameQuit(gWindow, gRenderer);
 
     return 0;

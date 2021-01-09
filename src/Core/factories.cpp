@@ -75,7 +75,7 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     auto &runSprite = reg.emplace<RunSprite>(e);
     SDL_CHECK(loadSpriteFromFile(renderer, runSprite, "assets/player/Woodcutter_run_red.png"));
 
-    runSprite.total_frames = 6;    
+    runSprite.total_frames = 22;    
     SDL_Rect run1{ 0, 0, 40, 45};
     SDL_Rect run2{ 45, 0, 40, 45};
     SDL_Rect run3{ 90, 0, 40, 45};
@@ -84,10 +84,28 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     SDL_Rect run6{ 225, 0, 40, 45};
 
     runSprite.spriteClips.push_back(run1);
+    runSprite.spriteClips.push_back(run1);
+    runSprite.spriteClips.push_back(run1);
+    runSprite.spriteClips.push_back(run1);
+    runSprite.spriteClips.push_back(run2);
+    runSprite.spriteClips.push_back(run2);
+    runSprite.spriteClips.push_back(run2);
     runSprite.spriteClips.push_back(run2);
     runSprite.spriteClips.push_back(run3);
+    runSprite.spriteClips.push_back(run3);
+    runSprite.spriteClips.push_back(run3);
+    runSprite.spriteClips.push_back(run3);
+    runSprite.spriteClips.push_back(run4);
+    runSprite.spriteClips.push_back(run4);
+    runSprite.spriteClips.push_back(run4);
     runSprite.spriteClips.push_back(run4);
     runSprite.spriteClips.push_back(run5);
+    runSprite.spriteClips.push_back(run5);
+    runSprite.spriteClips.push_back(run5);
+    runSprite.spriteClips.push_back(run5);
+    runSprite.spriteClips.push_back(run6);
+    runSprite.spriteClips.push_back(run6);
+    runSprite.spriteClips.push_back(run6);
     runSprite.spriteClips.push_back(run6);
 
     runSprite.size.width  = DEFAULT_SPRITE.width * 2;
@@ -96,7 +114,7 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     auto &walkSprite = reg.emplace<WalkSprite>(e);
     SDL_CHECK(loadSpriteFromFile(renderer, walkSprite, "assets/player/Woodcutter_walk_red.png"));
 
-    walkSprite.total_frames = 60;    
+    walkSprite.total_frames = 30;    
     SDL_Rect walk1{ 0, 0, 40, 45};
     SDL_Rect walk2{ 45, 0, 40, 45};
     SDL_Rect walk3{ 90, 0, 40, 45};
@@ -109,16 +127,6 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     walkSprite.spriteClips.push_back(walk1);
     walkSprite.spriteClips.push_back(walk1);
     walkSprite.spriteClips.push_back(walk1);
-    walkSprite.spriteClips.push_back(walk1);
-    walkSprite.spriteClips.push_back(walk1);
-    walkSprite.spriteClips.push_back(walk1);
-    walkSprite.spriteClips.push_back(walk1);
-    walkSprite.spriteClips.push_back(walk1);
-    walkSprite.spriteClips.push_back(walk2);
-    walkSprite.spriteClips.push_back(walk2);
-    walkSprite.spriteClips.push_back(walk2);
-    walkSprite.spriteClips.push_back(walk2);
-    walkSprite.spriteClips.push_back(walk2);
     walkSprite.spriteClips.push_back(walk2);
     walkSprite.spriteClips.push_back(walk2);
     walkSprite.spriteClips.push_back(walk2);
@@ -129,16 +137,6 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     walkSprite.spriteClips.push_back(walk3);
     walkSprite.spriteClips.push_back(walk3);
     walkSprite.spriteClips.push_back(walk3);
-    walkSprite.spriteClips.push_back(walk3);
-    walkSprite.spriteClips.push_back(walk3);
-    walkSprite.spriteClips.push_back(walk3);
-    walkSprite.spriteClips.push_back(walk3);
-    walkSprite.spriteClips.push_back(walk3);
-    walkSprite.spriteClips.push_back(walk4);
-    walkSprite.spriteClips.push_back(walk4);
-    walkSprite.spriteClips.push_back(walk4);
-    walkSprite.spriteClips.push_back(walk4);
-    walkSprite.spriteClips.push_back(walk4);
     walkSprite.spriteClips.push_back(walk4);
     walkSprite.spriteClips.push_back(walk4);
     walkSprite.spriteClips.push_back(walk4);
@@ -149,29 +147,19 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     walkSprite.spriteClips.push_back(walk5);
     walkSprite.spriteClips.push_back(walk5);
     walkSprite.spriteClips.push_back(walk5);
-    walkSprite.spriteClips.push_back(walk5);
-    walkSprite.spriteClips.push_back(walk5);
-    walkSprite.spriteClips.push_back(walk5);
-    walkSprite.spriteClips.push_back(walk5);
-    walkSprite.spriteClips.push_back(walk5);
     walkSprite.spriteClips.push_back(walk6);
     walkSprite.spriteClips.push_back(walk6);
     walkSprite.spriteClips.push_back(walk6);
     walkSprite.spriteClips.push_back(walk6);
     walkSprite.spriteClips.push_back(walk6);
-    walkSprite.spriteClips.push_back(walk6);
-    walkSprite.spriteClips.push_back(walk6);
-    walkSprite.spriteClips.push_back(walk6);
-    walkSprite.spriteClips.push_back(walk6);
-    walkSprite.spriteClips.push_back(walk6);
-
+    
     walkSprite.size.width  = DEFAULT_SPRITE.width * 2;
     walkSprite.size.height = DEFAULT_SPRITE.height * 2;
 
     auto &jumpSprite = reg.emplace<JumpSprite>(e);
     SDL_CHECK(loadSpriteFromFile(renderer, jumpSprite, "assets/player/Woodcutter_jump_red.png"));
 
-    jumpSprite.total_frames = 24;    
+    jumpSprite.total_frames = 30;    
     SDL_Rect jump1{ 0, 0, 40, 45};
     SDL_Rect jump2{ 45, 0, 40, 45};
     SDL_Rect jump3{ 90, 0, 40, 45};

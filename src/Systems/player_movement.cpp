@@ -9,16 +9,16 @@
 
 #include "../Components/components.hpp"
 
-const float X_WALK_FORCE      = 3000.0f;
+const float X_WALK_FORCE      = 2500.0f;
 
 const float X_RUN_FORCE       = 100.0f;
 const float X_RUN_START_FORCE = 3500.0f;
 const float X_RUN_MAX_FORCE   = 6000.0f;
 
-const float Y_JUMP_FORCE      = 2800.0f;
-const float Y_FALL_FORCE      = 3500.0f;
+const float Y_JUMP_FORCE      = 3800.0f;
+const float Y_FALL_FORCE      = 7000.0f;
 
-const float Y_JUMP_MAX_HEIGHT = 70.0f; 
+const float Y_JUMP_MAX_HEIGHT = 130.0f; 
 
 const float MAX_JUMP_DAMPENING = 0.1f; // MILLISECONDS
 

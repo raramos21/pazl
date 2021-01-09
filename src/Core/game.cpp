@@ -35,6 +35,7 @@ GameSettings gameInit(){
     game.CURRENT_PERF    = 0.0;
 
     SDL_CHECK(loadFramerateFont(&game));
+    // SDL_CHECK(loadGamePad())
 
     return game;
 }
@@ -51,21 +52,25 @@ void gameCreateEntities(SDL_Renderer* renderer){
 
     color.green = 78; 
     color.blue  = 112;
+    color.alpha = 255;
     levels.push_back(makeLevel(renderer, reg, game, 0.6, 0.7, color, "Level Two"));
 
     color.red   = 255;
     color.green = 71; 
     color.blue  = 71;
+    color.alpha = 255;
     levels.push_back(makeLevel(renderer, reg, game, 0.4, 0.8, color, "Level Three"));
 
     color.red   = 255;
     color.green = 238; 
     color.blue  = 11;
-    levels.push_back(makeLevel(renderer, reg, game, 0.95, 0.3, color, "Level Four"));
+    color.alpha = 255;
+    levels.push_back(makeLevel(renderer, reg, game, 0.95, 0.28, color, "Level Four"));
 
     color.red   = 0;
     color.green = 39; 
     color.blue  = 43;
+    color.alpha = 255;
     levels.push_back(makeLevel(renderer, reg, game, 1, 1, color, "Level Five"));
 }
 

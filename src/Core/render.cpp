@@ -72,26 +72,29 @@ std::string getPlayerActionString(PlayerAction action){
 
 void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Position position, Sprite sprite, int & total_sprite_frames){
     total_sprite_frames = sprite.total_frames;
-    // int clip = game->FRAMES / total_sprite_frames;
-    int clip = game->FRAMES;
+    // int clip = game->FRAMES;
+    int clip = 0;
+
     SDL_Rect currentClip = sprite.spriteClips[clip];
-    SDL_Rect renderQuad = {(int) position.x, (int) position.y, sprite.size.width, sprite.size.height};
+    SDL_FRect renderQuad = {position.x, position.y, (float) sprite.size.width, (float) sprite.size.height};
 
     // Render red rectangle around sprite.
-    SDL_Rect fillRect = {(int) position.x, (int) position.y, sprite.size.width, sprite.size.height};
+    SDL_FRect fillRectF = {position.x, position.y, (float) sprite.size.width, (float) sprite.size.height};
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
-    SDL_RenderDrawRect(renderer, &fillRect);
+    SDL_RenderDrawRectF(renderer, &fillRectF);
 
     // Render current clip number.
     SDL_Color color       = { 0xff, 0xff, 0xff };
     SDL_Rect textPosition = {(int) position.x + 5, (int) position.y + 2, 0, 0};
     renderText(renderer, game->FONT, textPosition, color, std::to_string(clip));    
     
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
     if(player.direction == LOOKING_LEFT){
-        SDL_RenderCopyEx(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);                 
+        SDL_RenderCopyExF(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);                 
     } else{
-        SDL_RenderCopyEx(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_NONE);                
+        SDL_RenderCopyExF(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_NONE);                
     }             
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
 void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game){
@@ -178,9 +181,11 @@ void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings game,
     auto size     = reg.get<Size>(e);
     auto color    = reg.get<Color>(e);
 
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_Rect fillRect = {(int) position.x, (int) position.y, size.width, size.height};
     SDL_SetRenderDrawColor(renderer, color.red, color.green, color.blue, color.alpha);
     SDL_RenderFillRect(renderer, &fillRect);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
 void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, entt::entity e){
