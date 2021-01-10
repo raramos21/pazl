@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <SDL.h>
+#include <entt/entity/fwd.hpp>
 
 #include "size.hpp"
 
@@ -11,6 +12,7 @@ struct Sprite{
     Size size;
     Size textureSheetSize;
     SDL_Texture* textureSheet;
+    entt::entity collisionBox;
     std::vector<SDL_Rect> spriteClips;
 };
 

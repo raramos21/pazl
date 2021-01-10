@@ -135,6 +135,10 @@ void gameRender(SDL_Renderer* renderer){
     renderLevel(renderer, reg, game, camera, levels[currentLevel]);
     renderPlatforms(renderer, reg, game, camera, levels[currentLevel]);
     renderPlayer(renderer, reg, &game, camera, showDevInfo);
+    if(showDevInfo){
+        renderPlayerCollisionBox(renderer, reg, game, camera, player);
+    }
+
     renderLevelInfo(renderer, reg, game, levels[currentLevel]);
     renderPlayerInfo(renderer, reg, game);
 }

@@ -2,7 +2,7 @@
 
 #include "../Components/components.hpp"
 
-void renderText(SDL_Renderer *renderer, TTF_Font* gFont, SDL_Rect dest,  SDL_Color color, const std::string text){
+void renderText(SDL_Renderer *renderer, TTF_Font *gFont, SDL_Rect dest,  SDL_Color color, const std::string text){
 	SDL_Color shadowColor = { 255, 255, 255 };
     SDL_Surface* surf = TTF_RenderText_Solid(gFont, text.c_str(), color);
     SDL_Surface* shadowSurf = TTF_RenderText_Solid(gFont, text.c_str(), shadowColor);
@@ -26,7 +26,7 @@ void renderText(SDL_Renderer *renderer, TTF_Font* gFont, SDL_Rect dest,  SDL_Col
     SDL_FreeSurface(shadowSurf);
 }
 
-void renderFrameRate(SDL_Renderer *renderer, GameSettings* game) {
+void renderFrameRate(SDL_Renderer *renderer, GameSettings *game) {
     SDL_Rect dest = { 10, 10, 0, 0 };
     SDL_Color color = { 0, 0xcd, 0x10 };
     renderText(renderer, game->FONT, dest, color, "Current FPS: " + std::to_string(game->CURRENT_FPS));
@@ -70,7 +70,7 @@ std::string getPlayerActionString(PlayerAction action){
     return actionString;
 }
 
-void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Position position, Sprite sprite, Camera camera, int & total_sprite_frames, bool showDevInfo){
+void renderSprite(SDL_Renderer *renderer, GameSettings *game, Player player, Position position, Sprite sprite, Camera camera, int & total_sprite_frames, bool showDevInfo){
     total_sprite_frames = sprite.total_frames;
     int clip = game->FRAMES;
     // int clip = 0;
@@ -99,7 +99,7 @@ void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Pos
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
-void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* game, Camera camera, bool showDevInfo){
+void renderPlayer(SDL_Renderer *renderer, entt::registry &reg, GameSettings *game, Camera camera, bool showDevInfo){
     const auto view = reg.view<Player, Position, Velocity, Force, IdleSprite, RunSprite, WalkSprite, JumpSprite>();
     for(const entt::entity e : view){
         const auto player     = view.get<Player>(e);
@@ -113,8 +113,10 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
 
         int total_sprite_frames = 1;
         
-        if(!player.isJumping){
-            if(player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT){      
+        if(player.isJumping || player.isFalling){
+            renderSprite(renderer, game, player, position, jumpSprite, camera, total_sprite_frames, showDevInfo);            
+        } else {
+           if(player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT){      
                 renderSprite(renderer, game, player, position, walkSprite, camera, total_sprite_frames, showDevInfo);
             }
 
@@ -125,8 +127,6 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
             if(player.currentAction == IDLE || player.currentAction == JUMP){
                 renderSprite(renderer, game, player, position, idleSprite, camera, total_sprite_frames, showDevInfo);
             }
-        } else {
-            renderSprite(renderer, game, player, position, jumpSprite, camera, total_sprite_frames, showDevInfo);
         }
 
         game->FRAMES += 1;
@@ -137,7 +137,7 @@ void renderPlayer(SDL_Renderer* renderer, entt::registry &reg, GameSettings* gam
     }   
 }
 
-void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings game){
+void renderPlayerInfo(SDL_Renderer *renderer, entt::registry &reg, GameSettings game){
     const auto view = reg.view<Player, Position, Velocity, Force>();
     for(const entt::entity e : view){
         const auto player   = view.get<Player>(e);
@@ -175,7 +175,7 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings 
     }
 }
 
-void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity levelEntity){
+void renderLevel(SDL_Renderer *renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity levelEntity){
     auto level    = reg.get<Level>(levelEntity);
     auto position = reg.get<Position>(levelEntity);
     auto size     = reg.get<Size>(levelEntity);
@@ -190,7 +190,7 @@ void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings game,
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
-void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, entt::entity levelEntity){
+void renderLevelInfo(SDL_Renderer *renderer, entt::registry &reg, GameSettings game, entt::entity levelEntity){
     SDL_Color color       = { 0x29, 0x2f, 0x36 };
     SDL_Rect textPosition = { 10, game.HEIGHT-35, 0, 0 };
     
@@ -202,12 +202,11 @@ void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings g
     SDL_RenderFillRect(renderer, &fillRect);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
-
     renderText(renderer, game.FONT, textPosition, color, level.name);
 }
 
 
-void renderPlatforms(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity levelEntity){
+void renderPlatforms(SDL_Renderer *renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity levelEntity){
     const auto view = reg.view<Platform, Size, Position, Color>();
     for(const entt::entity e : view){
         const auto platform = view.get<Platform>(e);
@@ -216,7 +215,6 @@ void renderPlatforms(SDL_Renderer* renderer, entt::registry &reg, GameSettings g
             const auto platformPosition = view.get<Position>(e);
             const auto platformSize     = view.get<Size>(e);
             const auto platformColor    = view.get<Color>(e);
-
             
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             
@@ -229,3 +227,35 @@ void renderPlatforms(SDL_Renderer* renderer, entt::registry &reg, GameSettings g
     }
 }
 
+void renderPlayerCollisionBox(SDL_Renderer *renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity playerEntity){
+    const auto player         = reg.get<Player>(playerEntity);
+    const auto playerPosition = reg.get<Position>(playerEntity);
+    const auto view           = reg.view<CollisionBox, Size, Position>();
+
+    for(const entt::entity e : view){
+        const auto collisionBox = view.get<CollisionBox>(e);
+
+        if(collisionBox.player == playerEntity
+            && player.currentAction == collisionBox.action 
+            && player.direction == collisionBox.direction
+        ){
+
+
+            const auto collisionBoxPosition = view.get<Position>(e);
+            const auto collisionBoxSize     = view.get<Size>(e);
+
+            if(collisionBox.action != JUMP && (player.isFalling || player.isJumping)){
+                // Use jumping collision box as the player animation should still be using the jumping frames.
+            } else{
+                float boxX = (playerPosition.x + collisionBoxPosition.x) - camera.position.x;
+                float boxY = (playerPosition.y + collisionBoxPosition.y) - camera.position.y;
+
+                SDL_FRect cBoxRectF = {boxX, boxY, (float) collisionBoxSize.width, (float) collisionBoxSize.height};
+                
+                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
+                SDL_RenderDrawRectF(renderer, &cBoxRectF);
+            }           
+            
+        }    
+    }
+}

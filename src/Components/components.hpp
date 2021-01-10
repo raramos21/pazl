@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include "collision_box.hpp"
 #include "color.hpp"
 #include "force.hpp"
 #include "game_settings.hpp"

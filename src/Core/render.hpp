@@ -9,10 +9,11 @@
 #include "../Components/components.hpp"
 
 void renderText(SDL_Renderer *, TTF_Font*, SDL_Rect,  SDL_Color, const std::string);
-void renderFrameRate(SDL_Renderer*, GameSettings* );
-void renderPlayer(SDL_Renderer *, entt::registry &, GameSettings*, Camera, bool);
+void renderFrameRate(SDL_Renderer *, GameSettings *);
+void renderPlayer(SDL_Renderer *, entt::registry &, GameSettings *, Camera, bool);
 void renderPlayerInfo(SDL_Renderer *, entt::registry &, GameSettings);
-void renderLevel(SDL_Renderer*, entt::registry &, GameSettings, Camera, entt::entity);
-void renderLevelInfo(SDL_Renderer*, entt::registry &, GameSettings, entt::entity);
-void renderPlatforms(SDL_Renderer*, entt::registry &, GameSettings, Camera, entt::entity);
+void renderLevel(SDL_Renderer *, entt::registry &, GameSettings, Camera, entt::entity);
+void renderLevelInfo(SDL_Renderer *, entt::registry &, GameSettings, entt::entity);
+void renderPlatforms(SDL_Renderer *, entt::registry &, GameSettings, Camera, entt::entity);
+void renderPlayerCollisionBox(SDL_Renderer *, entt::registry &, GameSettings, Camera, entt::entity);
 #endif
