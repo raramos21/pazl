@@ -14,4 +14,5 @@ void renderPlayer(SDL_Renderer *, entt::registry &, GameSettings*, Camera, bool)
 void renderPlayerInfo(SDL_Renderer *, entt::registry &, GameSettings);
 void renderLevel(SDL_Renderer*, entt::registry &, GameSettings, Camera, entt::entity);
 void renderLevelInfo(SDL_Renderer*, entt::registry &, GameSettings, entt::entity);
+void renderPlatforms(SDL_Renderer*, entt::registry &, GameSettings, Camera, entt::entity);
 #endif

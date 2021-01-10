@@ -79,9 +79,9 @@ void renderSprite(SDL_Renderer* renderer, GameSettings* game, Player player, Pos
     SDL_FRect renderQuad = {(position.x - camera.position.x), (position.y - camera.position.y), (float) sprite.size.width, (float) sprite.size.height};
 
     if(showDevInfo){
-        // Render red rectangle around sprite.
+        // Render green rectangle around sprite.
         SDL_FRect fillRectF = {(position.x - camera.position.x), (position.y - camera.position.y), (float) sprite.size.width, (float) sprite.size.height};
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 0);
         SDL_RenderDrawRectF(renderer, &fillRectF);
 
         // Render current clip number.
@@ -175,11 +175,11 @@ void renderPlayerInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings 
     }
 }
 
-void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity e){
-    auto level    = reg.get<Level>(e);
-    auto position = reg.get<Position>(e);
-    auto size     = reg.get<Size>(e);
-    auto color    = reg.get<Color>(e);
+void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity levelEntity){
+    auto level    = reg.get<Level>(levelEntity);
+    auto position = reg.get<Position>(levelEntity);
+    auto size     = reg.get<Size>(levelEntity);
+    auto color    = reg.get<Color>(levelEntity);
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     
@@ -190,11 +190,11 @@ void renderLevel(SDL_Renderer* renderer, entt::registry &reg, GameSettings game,
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
-void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, entt::entity e){
+void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, entt::entity levelEntity){
     SDL_Color color       = { 0x29, 0x2f, 0x36 };
     SDL_Rect textPosition = { 10, game.HEIGHT-35, 0, 0 };
     
-    auto level = reg.get<Level>(e);
+    auto level = reg.get<Level>(levelEntity);
 
     SDL_Rect fillRect = {0, game.HEIGHT-40, 300, game.HEIGHT};
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
@@ -206,4 +206,26 @@ void renderLevelInfo(SDL_Renderer* renderer, entt::registry &reg, GameSettings g
     renderText(renderer, game.FONT, textPosition, color, level.name);
 }
 
+
+void renderPlatforms(SDL_Renderer* renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity levelEntity){
+    const auto view = reg.view<Platform, Size, Position, Color>();
+    for(const entt::entity e : view){
+        const auto platform = view.get<Platform>(e);
+
+        if(platform.level == levelEntity){
+            const auto platformPosition = view.get<Position>(e);
+            const auto platformSize     = view.get<Size>(e);
+            const auto platformColor    = view.get<Color>(e);
+
+            
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            
+            SDL_FRect fillRect = {(platformPosition.x - camera.position.x), (platformPosition.y - camera.position.y), (float) platformSize.width, (float) platformSize.height};
+            SDL_SetRenderDrawColor(renderer, platformColor.red, platformColor.green, platformColor.blue, platformColor.alpha);
+            SDL_RenderFillRectF(renderer, &fillRect);
+
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+        }
+    }
+}
 

@@ -35,10 +35,6 @@ void playerInput(entt::registry &reg, SDL_Scancode scancode, const Uint8* curren
         if(currentKeyStates[SDL_SCANCODE_E]){
             player.currentAction = ATTACK;
         }
-
-        if(currentKeyStates[SDL_SCANCODE_R]){
-            player.currentAction = RESET;
-        }
     }
 }
 

@@ -7,6 +7,7 @@
 #include <entt/entity/registry.hpp>
 
 const Size DEFAULT_SPRITE{40, 45};
+const Size DEFAULT_PLATFORM{50, 100};
 
 entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettings game){
     const entt::entity e = reg.create();
@@ -234,12 +235,12 @@ entt::entity makePlayer(SDL_Renderer * renderer, entt::registry &reg, GameSettin
     return e;
 }
 
-entt::entity makeLevel(SDL_Renderer * renderer, entt::registry &reg, GameSettings game, float widthPer, float heightPer, Color color, std::string name){
+entt::entity makeLevel(entt::registry &reg, GameSettings game, float widthPer, float heightPer, Color color, std::string name){
     const entt::entity e = reg.create();
-    auto &level     = reg.emplace<Level>(e);
-    auto &size      = reg.emplace<Size>(e);
-    auto &position  = reg.emplace<Position>(e);
-    auto &colorComp = reg.emplace<Color>(e);
+    auto &level          = reg.emplace<Level>(e);
+    auto &size           = reg.emplace<Size>(e);
+    auto &position       = reg.emplace<Position>(e);
+    auto &colorComp      = reg.emplace<Color>(e);
 
     level.name = name;
 
@@ -249,12 +250,24 @@ entt::entity makeLevel(SDL_Renderer * renderer, entt::registry &reg, GameSetting
     position.x = (game.WIDTH / 2) - (size.width / 2);
     position.y = (game.HEIGHT / 2) - (size.height / 2);
 
-    colorComp.red   = color.red;
-    colorComp.green = color.green;
-    colorComp.blue  = color.blue;    
-    colorComp.alpha = color.alpha;
+    colorComp   = color;
 
     level.floor = position.y + size.height;
     
+    return e;
+}
+
+
+entt::entity makePlatform(entt::registry &reg, GameSettings game, entt::entity levelEntity, Position position, Size size, Color color){
+    const entt::entity e   = reg.create();
+    auto &platform         = reg.emplace<Platform>(e);
+    auto &platformSize     = reg.emplace<Size>(e);
+    auto &platformPosition = reg.emplace<Position>(e);
+    auto &platformColor    = reg.emplace<Color>(e);
+
+    platform.level = levelEntity;
+    platformSize  = size;
+    platformPosition = position;
+    platformColor = color;
     return e;
 }

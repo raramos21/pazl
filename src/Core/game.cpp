@@ -16,6 +16,8 @@
 #include "../Systems/toggle_dev_info.hpp"
 #include "../Systems/camera_position.hpp"
 #include "../Systems/camera_initial_position.hpp"
+#include "../Systems/player_collide_with_platforms.hpp"
+#include "../Systems/reset_player_position.hpp"
 
 GameSettings game;
 Camera       camera;
@@ -25,7 +27,7 @@ entt::entity player;
 
 std::vector<entt::entity> levels;
 
-int currentLevel = 4;
+int currentLevel = 0;
 bool showDevInfo = false;
 
 GameSettings gameInit(){
@@ -45,8 +47,6 @@ GameSettings gameInit(){
     camera.size.width = game.WIDTH;
     camera.size.height = game.HEIGHT;
 
-    // camera.position.x -= 760;
-
     SDL_CHECK(loadFramerateFont(&game));
 
     return game;
@@ -60,30 +60,48 @@ void gameCreateEntities(SDL_Renderer* renderer){
     color.green = 112;
     color.blue  = 78;    
     color.alpha = 255;
-    levels.push_back(makeLevel(renderer, reg, game, 0.8, 0.8, color, "Level One"));
+    entt::entity levelOne = makeLevel(reg, game, 0.8, 0.8, color, "Level One");
+    
+    Position position{game.WIDTH/2, game.HEIGHT/2 + 100};
+    Size size{100, 30};
+
+    color.red   = 0;
+    color.green = 0;
+    color.blue  = 0;
+
+    makePlatform(reg, game, levelOne, position, size, color);
+    levels.push_back(levelOne);
 
     color.green = 78; 
     color.blue  = 112;
     color.alpha = 255;
-    levels.push_back(makeLevel(renderer, reg, game, 0.6, 0.7, color, "Level Two"));
+    levels.push_back(makeLevel(reg, game, 0.6, 0.7, color, "Level Two"));
 
     color.red   = 255;
     color.green = 71; 
     color.blue  = 71;
     color.alpha = 255;
-    levels.push_back(makeLevel(renderer, reg, game, 0.4, 0.8, color, "Level Three"));
+    levels.push_back(makeLevel(reg, game, 0.4, 0.8, color, "Level Three"));
 
     color.red   = 255;
     color.green = 238; 
     color.blue  = 11;
     color.alpha = 255;
-    levels.push_back(makeLevel(renderer, reg, game, 5, 0.28, color, "Level Four"));
+    entt::entity levelFour = makeLevel(reg, game, 5, 0.28, color, "Level Four");
+    levels.push_back(levelFour);
+
+    color.red   = 255;
+    color.green = 0;
+    color.blue  = 0;
+    position = {game.WIDTH/2, game.HEIGHT/2};
+    makePlatform(reg, game, levelFour, position, size, color);
+
 
     color.red   = 0;
     color.green = 39; 
     color.blue  = 43;
     color.alpha = 255;
-    levels.push_back(makeLevel(renderer, reg, game, 1.10, 1, color, "Level Five"));
+    levels.push_back(makeLevel(reg, game, 1.10, 1, color, "Level Five"));
     
     playerInitialPosition(reg, levels[currentLevel], player);
     cameraInitialPosition(reg, game, camera, player, levels[currentLevel]);
@@ -94,8 +112,12 @@ void gameInput(SDL_Scancode scancode, const Uint8* currentKeyStates){
 }
 
 void gameImmediateInput(SDL_Scancode scancode){
+    // I -key
     toggleDevInfo(scancode, showDevInfo);
+    // </> -keys
     changeLevels(reg, scancode, game, camera, player, currentLevel, levels);
+    // R -key
+    resetPlayerPosition(reg, scancode, player, levels[currentLevel]);
 }
 
 void gameDefaultInput(SDL_Scancode scancode){    
@@ -104,12 +126,14 @@ void gameDefaultInput(SDL_Scancode scancode){
 
 void gameLogic(double t, float dt){    
     playerMovement(reg, dt, levels[currentLevel]);
+    playerCollideWithPlatforms(reg, dt, player, levels[currentLevel]);
 }
 
 void gameRender(SDL_Renderer* renderer){
     cameraPosition(reg, game, camera, player, levels[currentLevel]);
     // renderFrameRate(renderer, game);
     renderLevel(renderer, reg, game, camera, levels[currentLevel]);
+    renderPlatforms(renderer, reg, game, camera, levels[currentLevel]);
     renderPlayer(renderer, reg, &game, camera, showDevInfo);
     renderLevelInfo(renderer, reg, game, levels[currentLevel]);
     renderPlayerInfo(renderer, reg, game);

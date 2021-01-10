@@ -5,11 +5,10 @@
 
 #include "position.hpp"
 #include "size.hpp"
+#include <entt/entity/fwd.hpp>
 
 struct Platform{
-    Position position;
-    Size size;
-
+    entt::entity level;
     SDL_Texture* textureSheet;
 };
 

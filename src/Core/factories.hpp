@@ -8,6 +8,7 @@
 #include "../Components/components.hpp"
 
 entt::entity makePlayer(SDL_Renderer*, entt::registry &, GameSettings);
-entt::entity makeLevel(SDL_Renderer*, entt::registry &, GameSettings, float, float, Color, std::string);
+entt::entity makeLevel(entt::registry &, GameSettings, float, float, Color, std::string);
+entt::entity makePlatform(entt::registry &, GameSettings, entt::entity, Position, Size, Color);
 
 #endif
