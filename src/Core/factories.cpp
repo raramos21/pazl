@@ -35,8 +35,9 @@ entt::entity makePlayer(SDL_Renderer *renderer, entt::registry &reg, GameSetting
     auto &force = reg.emplace<Force>(playerEntity);
     player.health = 100;
     player.mass = 1;
-    player.isJumping = false;
-    player.isFalling = false;
+    player.isJumping   = false;
+    player.isFalling   = false;
+    player.isColliding = false;
     player.currentAction = action::IDLE;
     velocity.x = 0;
     velocity.y = 0;

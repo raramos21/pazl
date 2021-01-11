@@ -154,7 +154,7 @@ void renderPlayerInfo(SDL_Renderer *renderer, entt::registry &reg, GameSettings 
         std::string currentAction = getPlayerActionString(player.currentAction);
         std::string direction     = getPlayerDirectionString(player.direction);
 
-        SDL_Rect fillRect = {0, 0, 550, 220};
+        SDL_Rect fillRect = {0, 0, 550, 250};
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderFillRect(renderer, &fillRect);
@@ -285,7 +285,12 @@ void renderPlayerCollisionBox(SDL_Renderer *renderer, entt::registry &reg, GameS
             }   
 
             SDL_FRect cBoxRectF = {boxX, boxY, boxWidth, boxHeight};
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            if(player.isColliding){
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            } else{
+                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            }
+            
             SDL_RenderDrawRectF(renderer, &cBoxRectF);
         }    
     }
@@ -301,7 +306,11 @@ void renderPlatformCollisionBox(SDL_Renderer *renderer, entt::registry &reg, Gam
             const auto collisionBoxSize     = view.get<Size>(collisionBoxEntity);    
 
             SDL_FRect cBoxRectF = {collisionBoxPosition.x - camera.position.x, collisionBoxPosition.y - camera.position.y, (float) collisionBoxSize.width, (float) collisionBoxSize.height};
-            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            if(collisionBox.isColliding){
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            } else{
+                SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            }
             SDL_RenderDrawRectF(renderer, &cBoxRectF);
         }
         

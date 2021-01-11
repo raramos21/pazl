@@ -24,6 +24,7 @@ struct Player{
     int health;
     bool isJumping;
     bool isFalling;
+    bool isColliding;
     float mass;
 
     action::Action       lastAction;

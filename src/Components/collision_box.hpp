@@ -7,6 +7,7 @@
 struct CollisionBox{
     entt::entity         entity;
     action::Action       action;
+    bool isColliding{false};
     direction::Direction direction;
 };
 

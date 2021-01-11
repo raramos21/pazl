@@ -9,6 +9,7 @@
 
 struct Platform{
     entt::entity level;
+    entt::entity collisionBox;
     SDL_Texture* textureSheet;
 };
 

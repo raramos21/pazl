@@ -62,15 +62,26 @@ void gameCreateEntities(SDL_Renderer* renderer){
     color.alpha = 255;
     entt::entity levelOne = makeLevel(reg, game, 0.8, 0.8, color, "Level One");
     
-    Position position{(float) (game.WIDTH/2), (float) (game.HEIGHT/2 + 100)};
+    Position position{(float) (game.WIDTH/2), (float) (game.HEIGHT/2 + 280)};
     Size size{100, 30};
 
     color.red   = 0;
     color.green = 0;
     color.blue  = 0;
 
-    auto platformEntity1 = makePlatform(reg, game, levelOne, position, size, color);
-    makeCollisionBox(reg, levelOne, position, size, action::NONE, direction::NONE);
+    auto platformEntity1     = makePlatform(reg, game, levelOne, position, size, color);
+    auto collisionBoxEntity1 = makeCollisionBox(reg, levelOne, position, size, action::NONE, direction::NONE);
+
+    auto &platform1        = reg.get<Platform>(platformEntity1);
+    platform1.collisionBox = collisionBoxEntity1;
+
+    position = {(float) (game.WIDTH/2) + 100, (float) (game.HEIGHT/2 + 240)};
+
+    auto platformEntity2     = makePlatform(reg, game, levelOne, position, size, color);
+    auto collisionBoxEntity2 = makeCollisionBox(reg, levelOne, position, size, action::NONE, direction::NONE);
+
+    auto &platform2        = reg.get<Platform>(platformEntity2);
+    platform2.collisionBox = collisionBoxEntity2;
 
 
     levels.push_back(levelOne);

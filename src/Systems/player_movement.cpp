@@ -9,7 +9,6 @@
 
 #include "../Components/components.hpp"
 
-// const float X_WALK_FORCE      = 16000.0f;
 const float X_WALK_FORCE      = 30000.0f;
 
 const float X_RUN_FORCE       = 1000.0f;
