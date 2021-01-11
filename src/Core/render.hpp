@@ -16,4 +16,5 @@ void renderLevel(SDL_Renderer *, entt::registry &, GameSettings, Camera, entt::e
 void renderLevelInfo(SDL_Renderer *, entt::registry &, GameSettings, entt::entity);
 void renderPlatforms(SDL_Renderer *, entt::registry &, GameSettings, Camera, entt::entity);
 void renderPlayerCollisionBox(SDL_Renderer *, entt::registry &, GameSettings, Camera, entt::entity);
+void renderPlatformCollisionBox(SDL_Renderer *, entt::registry &, GameSettings, Camera, entt::entity);
 #endif

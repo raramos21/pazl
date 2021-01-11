@@ -9,31 +9,32 @@ void playerInput(entt::registry &reg, SDL_Scancode scancode, const Uint8* curren
 
         player.lastAction = player.currentAction;
         if(currentKeyStates[SDL_SCANCODE_D] || currentKeyStates[SDL_SCANCODE_RIGHT]){
-            player.currentAction = WALK_RIGHT;
-            player.direction     = LOOKING_RIGHT;
+            player.currentAction = action::WALK;
+            player.direction     = direction::LOOKING_RIGHT;
         }
 
         if(currentKeyStates[SDL_SCANCODE_A] || currentKeyStates[SDL_SCANCODE_LEFT]){
-            player.currentAction = WALK_LEFT;
-            player.direction     = LOOKING_LEFT;
+            player.currentAction = action::WALK;
+            player.direction     = direction::LOOKING_LEFT;
         }
 
         if(currentKeyStates[SDL_SCANCODE_SPACE]){
-            player.currentAction = JUMP;
+            player.currentAction = action::JUMP;
         }
 
         if(currentKeyStates[SDL_SCANCODE_LSHIFT] && (currentKeyStates[SDL_SCANCODE_LEFT] || currentKeyStates[SDL_SCANCODE_A])){
-            player.currentAction = RUN_LEFT;
-            player.direction     = LOOKING_LEFT;
+            player.currentAction = action::RUN;
+            player.direction     = direction::LOOKING_LEFT;
         }
 
         if(currentKeyStates[SDL_SCANCODE_LSHIFT] && (currentKeyStates[SDL_SCANCODE_RIGHT] || currentKeyStates[SDL_SCANCODE_D])){
-            player.currentAction = RUN_RIGHT;
-            player.direction     = LOOKING_RIGHT;
+            player.currentAction = action::RUN;
+            player.direction     = direction::LOOKING_RIGHT;
         }
 
         if(currentKeyStates[SDL_SCANCODE_E]){
-            player.currentAction = ATTACK;
+            player.currentAction = action::ATTACK;
+            player.direction     = direction::LOOKING_RIGHT;
         }
     }
 }
@@ -44,6 +45,6 @@ void playerDefault(entt::registry &reg, SDL_Scancode scancode){
         auto &player = view.get<Player>(e);        
 
         player.lastAction = player.currentAction;
-        player.currentAction = IDLE;
+        player.currentAction = action::IDLE;
     }
 }

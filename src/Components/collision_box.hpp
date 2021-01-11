@@ -5,9 +5,9 @@
 #include "player.hpp"
 
 struct CollisionBox{
-    entt::entity    player;
-    PlayerAction    action;
-    PlayerDirection direction;
+    entt::entity         entity;
+    action::Action       action;
+    direction::Direction direction;
 };
 
 #endif

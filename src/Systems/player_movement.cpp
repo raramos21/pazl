@@ -50,49 +50,45 @@ void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
         float jumpHeight = maxY - Y_JUMP_MAX_HEIGHT;
 
         switch(player.currentAction){
-            case WALK_RIGHT:
-                force.x = X_WALK_FORCE;
-                break;
-            case WALK_LEFT:
-                force.x = -X_WALK_FORCE;
-                break;
-            case RUN_RIGHT:{
-                if(player.lastAction == RUN_RIGHT){
-                    if(force.x < X_RUN_MAX_FORCE){
-                        force.x += X_RUN_FORCE;
-                    } 
+            case action::WALK:
+                if(player.direction == direction::LOOKING_RIGHT){
+                    force.x = X_WALK_FORCE;
                 } else {
-                    force.x = X_RUN_START_FORCE;
+                    force.x = -X_WALK_FORCE;
+                }
+                break;
+            case action::RUN:{
+                if(player.direction == direction::LOOKING_RIGHT){
+                    if(player.lastAction == action::RUN){
+                        if(force.x < X_RUN_MAX_FORCE){
+                            force.x += X_RUN_FORCE;
+                        } 
+                    } else {
+                        force.x = X_RUN_START_FORCE;
+                    }                
+                } else {
+                    if(player.lastAction == action::RUN){
+                        if(force.x > -X_RUN_MAX_FORCE){
+                            force.x -= X_RUN_FORCE;
+                        }
+                    } else {
+                        force.x = -X_RUN_START_FORCE;
+                    }                
                 }                
                 break;
             }                
-            case RUN_LEFT:{
-                if(player.lastAction == RUN_LEFT){
-                    if(force.x > -X_RUN_MAX_FORCE){
-                        force.x -= X_RUN_FORCE;
-                    }
-                } else {
-                    force.x = -X_RUN_START_FORCE;
-                }                
-                break;
-            }                
-            case JUMP: {
+            case action::JUMP: {
                 if(!player.isJumping && jumpDampening >= MAX_JUMP_DAMPENING){
                     player.isJumping = true;
                     force.y = -Y_JUMP_FORCE;
                 }     
                 break;
             }
-            case IDLE:
+            case action::IDLE:
                 force.x = 0;
                 // force.y = 0;
                 break;
-            case ATTACK:
-                break;
-            case RESET:
-                position.y = maxY;
-                force.x = 0;
-                force.y = 0;
+            case action::ATTACK:
                 break;
             default:               
                 break;

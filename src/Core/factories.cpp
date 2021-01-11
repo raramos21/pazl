@@ -11,14 +11,14 @@ const Size DEFAULT_PLATFORM{50, 100};
 
 const int SPRITE_SCALE_FACTOR = 2;
 
-entt::entity makeCollisionBox(entt::registry &reg, entt::entity playerEntity, Position position, Size size, PlayerAction action, PlayerDirection direction){    
+entt::entity makeCollisionBox(entt::registry &reg, entt::entity entity, Position position, Size size, action::Action action, direction::Direction direction){    
     const entt::entity collisionEntity = reg.create();
 
     auto &collisionBox         = reg.emplace<CollisionBox>(collisionEntity);
     auto &collisionBoxPosition = reg.emplace<Position>(collisionEntity);
     auto &collisionBoxSize     = reg.emplace<Size>(collisionEntity);
 
-    collisionBox.player    = playerEntity;
+    collisionBox.entity    = entity;
     collisionBox.action    = action;
     collisionBox.direction = direction;
     collisionBoxPosition   = position;
@@ -28,22 +28,22 @@ entt::entity makeCollisionBox(entt::registry &reg, entt::entity playerEntity, Po
 }
 
 entt::entity makePlayer(SDL_Renderer *renderer, entt::registry &reg, GameSettings game){
-    const entt::entity e = reg.create();
-    auto &player = reg.emplace<Player>(e);
-    auto &position = reg.emplace<Position>(e);
-    auto &velocity = reg.emplace<Velocity>(e);
-    auto &force = reg.emplace<Force>(e);
+    const entt::entity playerEntity = reg.create();
+    auto &player = reg.emplace<Player>(playerEntity);
+    auto &position = reg.emplace<Position>(playerEntity);
+    auto &velocity = reg.emplace<Velocity>(playerEntity);
+    auto &force = reg.emplace<Force>(playerEntity);
     player.health = 100;
     player.mass = 1;
     player.isJumping = false;
     player.isFalling = false;
-    player.currentAction = IDLE;
+    player.currentAction = action::IDLE;
     velocity.x = 0;
     velocity.y = 0;
     force.x = 0;
     force.y = 0;
 
-    auto &idleSprite = reg.emplace<IdleSprite>(e);
+    auto &idleSprite = reg.emplace<IdleSprite>(playerEntity);
     SDL_CHECK(loadSpriteFromFile(renderer, idleSprite, "assets/player/Woodcutter_idle_red.png"));
 
     idleSprite.total_frames = 32;    
@@ -91,7 +91,7 @@ entt::entity makePlayer(SDL_Renderer *renderer, entt::registry &reg, GameSetting
     position.x = (game.WIDTH  - idleSprite.spriteClips[0].w)/2;
     position.y = (game.HEIGHT - idleSprite.spriteClips[0].h)/2;
 
-    auto &runSprite = reg.emplace<RunSprite>(e);
+    auto &runSprite = reg.emplace<RunSprite>(playerEntity);
     SDL_CHECK(loadSpriteFromFile(renderer, runSprite, "assets/player/Woodcutter_run_red.png"));
 
     runSprite.total_frames = 22;    
@@ -130,7 +130,7 @@ entt::entity makePlayer(SDL_Renderer *renderer, entt::registry &reg, GameSetting
     runSprite.size.width  = DEFAULT_SPRITE.width * SPRITE_SCALE_FACTOR;
     runSprite.size.height = DEFAULT_SPRITE.height * SPRITE_SCALE_FACTOR;
     
-    auto &walkSprite = reg.emplace<WalkSprite>(e);
+    auto &walkSprite = reg.emplace<WalkSprite>(playerEntity);
     SDL_CHECK(loadSpriteFromFile(renderer, walkSprite, "assets/player/Woodcutter_walk_red.png"));
 
     walkSprite.total_frames = 30;    
@@ -175,7 +175,7 @@ entt::entity makePlayer(SDL_Renderer *renderer, entt::registry &reg, GameSetting
     walkSprite.size.width  = DEFAULT_SPRITE.width * SPRITE_SCALE_FACTOR;
     walkSprite.size.height = DEFAULT_SPRITE.height * SPRITE_SCALE_FACTOR;
 
-    auto &jumpSprite = reg.emplace<JumpSprite>(e);
+    auto &jumpSprite = reg.emplace<JumpSprite>(playerEntity);
     SDL_CHECK(loadSpriteFromFile(renderer, jumpSprite, "assets/player/Woodcutter_jump_red.png"));
 
     jumpSprite.total_frames = 30;    
@@ -255,46 +255,46 @@ entt::entity makePlayer(SDL_Renderer *renderer, entt::registry &reg, GameSetting
     Position cBoxPosition{18 * SPRITE_SCALE_FACTOR, 9 * SPRITE_SCALE_FACTOR};
     Size     cBoxSize{(int)(14 * SPRITE_SCALE_FACTOR), (int)(36 * SPRITE_SCALE_FACTOR)};
 
-    makeCollisionBox(reg, e, cBoxPosition, cBoxSize, IDLE, LOOKING_RIGHT);
+    idleSprite.rightCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::IDLE, direction::LOOKING_RIGHT);
 
     cBoxPosition.x = idleSprite.size.width - (cBoxPosition.x + cBoxSize.width);
-    makeCollisionBox(reg, e, cBoxPosition, cBoxSize, IDLE, LOOKING_LEFT);   
+    idleSprite.leftCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::IDLE, direction::LOOKING_LEFT);   
 
     // WALK COLLISION BOX
     cBoxPosition = {17 * SPRITE_SCALE_FACTOR, 8 * SPRITE_SCALE_FACTOR};
     cBoxSize = {(int)(13 * SPRITE_SCALE_FACTOR), (int)(37 * SPRITE_SCALE_FACTOR)};
 
-    makeCollisionBox(reg, e, cBoxPosition, cBoxSize, WALK_RIGHT, LOOKING_RIGHT);
+    walkSprite.rightCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::WALK, direction::LOOKING_RIGHT);
 
     cBoxPosition.x = walkSprite.size.width - (cBoxPosition.x + cBoxSize.width);
-    makeCollisionBox(reg, e, cBoxPosition, cBoxSize, WALK_LEFT, LOOKING_LEFT);    
+    walkSprite.leftCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::WALK, direction::LOOKING_LEFT);    
 
     // JUMP COLLISION BOX
     cBoxPosition = {13 * SPRITE_SCALE_FACTOR, 12 * SPRITE_SCALE_FACTOR};
     cBoxSize = {(int)(15 * SPRITE_SCALE_FACTOR), (int)(35 * SPRITE_SCALE_FACTOR)};
 
-    makeCollisionBox(reg, e, cBoxPosition, cBoxSize, JUMP, LOOKING_RIGHT);
+    jumpSprite.rightCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::JUMP, direction::LOOKING_RIGHT);
 
     cBoxPosition.x = walkSprite.size.width - (cBoxPosition.x + cBoxSize.width);
-    makeCollisionBox(reg, e, cBoxPosition, cBoxSize, JUMP, LOOKING_LEFT);    
+    jumpSprite.leftCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::JUMP, direction::LOOKING_LEFT);    
 
     // RUN COLLISION BOX
     cBoxPosition = {15 * SPRITE_SCALE_FACTOR, 11 * SPRITE_SCALE_FACTOR};
     cBoxSize = {(int)(14 * SPRITE_SCALE_FACTOR), (int)(34 * SPRITE_SCALE_FACTOR)};
 
-    makeCollisionBox(reg, e, cBoxPosition, cBoxSize, RUN_RIGHT, LOOKING_RIGHT);
+    runSprite.rightCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::RUN, direction::LOOKING_RIGHT);
 
     cBoxPosition.x = walkSprite.size.width - (cBoxPosition.x + cBoxSize.width);
-    makeCollisionBox(reg, e, cBoxPosition, cBoxSize, RUN_LEFT, LOOKING_LEFT);    
-    return e;
+    runSprite.leftCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::RUN, direction::LOOKING_LEFT);    
+    return playerEntity;
 }
 
 entt::entity makeLevel(entt::registry &reg, GameSettings game, float widthPer, float heightPer, Color color, std::string name){
-    const entt::entity e = reg.create();
-    auto &level          = reg.emplace<Level>(e);
-    auto &size           = reg.emplace<Size>(e);
-    auto &position       = reg.emplace<Position>(e);
-    auto &colorComp      = reg.emplace<Color>(e);
+    const entt::entity levelEntity = reg.create();
+    auto &level          = reg.emplace<Level>(levelEntity);
+    auto &size           = reg.emplace<Size>(levelEntity);
+    auto &position       = reg.emplace<Position>(levelEntity);
+    auto &colorComp      = reg.emplace<Color>(levelEntity);
 
     level.name = name;
 
@@ -308,20 +308,20 @@ entt::entity makeLevel(entt::registry &reg, GameSettings game, float widthPer, f
 
     level.floor = position.y + size.height;
     
-    return e;
+    return levelEntity;
 }
 
 
 entt::entity makePlatform(entt::registry &reg, GameSettings game, entt::entity levelEntity, Position position, Size size, Color color){
-    const entt::entity e   = reg.create();
-    auto &platform         = reg.emplace<Platform>(e);
-    auto &platformSize     = reg.emplace<Size>(e);
-    auto &platformPosition = reg.emplace<Position>(e);
-    auto &platformColor    = reg.emplace<Color>(e);
+    const entt::entity platformEntity = reg.create();
+    auto &platform         = reg.emplace<Platform>(platformEntity);
+    auto &platformSize     = reg.emplace<Size>(platformEntity);
+    auto &platformPosition = reg.emplace<Position>(platformEntity);
+    auto &platformColor    = reg.emplace<Color>(platformEntity);
 
     platform.level = levelEntity;
     platformSize  = size;
     platformPosition = position;
     platformColor = color;
-    return e;
+    return platformEntity;
 }

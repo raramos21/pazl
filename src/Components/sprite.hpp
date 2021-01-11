@@ -12,7 +12,8 @@ struct Sprite{
     Size size;
     Size textureSheetSize;
     SDL_Texture* textureSheet;
-    entt::entity collisionBox;
+    entt::entity rightCollisionBox;
+    entt::entity leftCollisionBox;
     std::vector<SDL_Rect> spriteClips;
 };
 

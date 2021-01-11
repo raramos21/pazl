@@ -36,38 +36,45 @@ void renderFrameRate(SDL_Renderer *renderer, GameSettings *game) {
     renderText(renderer, game->FONT, dest, color, "Current Perf: " + std::to_string(game->CURRENT_PERF));
 }
 
-std::string getPlayerActionString(PlayerAction action){
+std::string getPlayerActionString(action::Action action){
     std::string actionString = "NONE";
     switch(action){
-        case WALK_RIGHT:
-            actionString = "WALK_RIGHT";
+        case action::WALK:
+            actionString = "WALK";
             break;
-        case WALK_LEFT:
-            actionString = "WALK_LEFT";
-            break;
-        case JUMP:
+        case action::JUMP:
             actionString = "JUMP";
             break;
-        case RUN_RIGHT:
-            actionString = "RUN_RIGHT";
+        case action::RUN:
+            actionString = "RUN";
             break;
-        case RUN_LEFT:
-            actionString = "RUN_LEFT";
-            break;
-        case IDLE:
+        case action::IDLE:
             actionString = "IDLE";
             break;
-        case ATTACK:
+        case action::ATTACK:
             actionString = "ATTACK";
-            break;
-        case RESET:
-            actionString = "RESET";
             break;
         default:
             actionString = "NONE";
             break;
     }
     return actionString;
+}
+
+std::string getPlayerDirectionString(direction::Direction direction){
+    std::string directionString = "NONE";
+    switch(direction){
+        case direction::LOOKING_RIGHT:
+            directionString = "LOOKING RIGHT";
+            break;
+        case direction::LOOKING_LEFT:
+            directionString = "LOOKING LEFT";
+            break;
+        default:
+            directionString = "NONE";
+            break;
+    }
+    return directionString;
 }
 
 void renderSprite(SDL_Renderer *renderer, GameSettings *game, Player player, Position position, Sprite sprite, Camera camera, int & total_sprite_frames, bool showDevInfo){
@@ -91,7 +98,7 @@ void renderSprite(SDL_Renderer *renderer, GameSettings *game, Player player, Pos
     }    
     
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
-    if(player.direction == LOOKING_LEFT){
+    if(player.direction == direction::LOOKING_LEFT){
         SDL_RenderCopyExF(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);                 
     } else{
         SDL_RenderCopyExF(renderer, sprite.textureSheet, &currentClip, &renderQuad, 0, NULL, SDL_FLIP_NONE);                
@@ -116,15 +123,13 @@ void renderPlayer(SDL_Renderer *renderer, entt::registry &reg, GameSettings *gam
         if(player.isJumping || player.isFalling){
             renderSprite(renderer, game, player, position, jumpSprite, camera, total_sprite_frames, showDevInfo);            
         } else {
-           if(player.currentAction == WALK_LEFT || player.currentAction == WALK_RIGHT){      
+            if(player.currentAction == action::WALK){      
                 renderSprite(renderer, game, player, position, walkSprite, camera, total_sprite_frames, showDevInfo);
             }
-
-            if(player.currentAction == RUN_LEFT || player.currentAction == RUN_RIGHT){
+            if(player.currentAction == action::RUN){
                 renderSprite(renderer, game, player, position, runSprite, camera, total_sprite_frames, showDevInfo);
             }
-
-            if(player.currentAction == IDLE || player.currentAction == JUMP){
+            if(player.currentAction == action::IDLE || player.currentAction == action::JUMP){
                 renderSprite(renderer, game, player, position, idleSprite, camera, total_sprite_frames, showDevInfo);
             }
         }
@@ -145,8 +150,9 @@ void renderPlayerInfo(SDL_Renderer *renderer, entt::registry &reg, GameSettings 
         const auto velocity = view.get<Velocity>(e);
         const auto force    = view.get<Force>(e);
         
-        std::string lastAction = getPlayerActionString(player.lastAction);
+        std::string lastAction    = getPlayerActionString(player.lastAction);
         std::string currentAction = getPlayerActionString(player.currentAction);
+        std::string direction     = getPlayerDirectionString(player.direction);
 
         SDL_Rect fillRect = {0, 0, 550, 220};
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
@@ -156,7 +162,9 @@ void renderPlayerInfo(SDL_Renderer *renderer, entt::registry &reg, GameSettings 
 
         SDL_Color color       = { 0x29, 0x2f, 0x36 };
         SDL_Rect textPosition = {10, 10, 0, 0};
-        
+
+        renderText(renderer, game.FONT, textPosition, color, "Direction: " + direction);
+        textPosition.y += 25;
         renderText(renderer, game.FONT, textPosition, color, "Current action: " + currentAction);
         textPosition.y += 25;
         renderText(renderer, game.FONT, textPosition, color, "Last action: " + lastAction);
@@ -235,27 +243,67 @@ void renderPlayerCollisionBox(SDL_Renderer *renderer, entt::registry &reg, GameS
     for(const entt::entity e : view){
         const auto collisionBox = view.get<CollisionBox>(e);
 
-        if(collisionBox.player == playerEntity
+        if(collisionBox.entity == playerEntity
             && player.currentAction == collisionBox.action 
             && player.direction == collisionBox.direction
         ){
-
-
             const auto collisionBoxPosition = view.get<Position>(e);
             const auto collisionBoxSize     = view.get<Size>(e);
 
-            if(collisionBox.action != JUMP && (player.isFalling || player.isJumping)){
-                // Use jumping collision box as the player animation should still be using the jumping frames.
-            } else{
-                float boxX = (playerPosition.x + collisionBoxPosition.x) - camera.position.x;
-                float boxY = (playerPosition.y + collisionBoxPosition.y) - camera.position.y;
+            float boxX = 0.0f;
+            float boxY = 0.0f;
 
-                SDL_FRect cBoxRectF = {boxX, boxY, (float) collisionBoxSize.width, (float) collisionBoxSize.height};
-                
-                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
-                SDL_RenderDrawRectF(renderer, &cBoxRectF);
-            }           
+            float boxWidth = 0.0f;
+            float boxHeight = 0.0f;
+
+            if(collisionBox.action != action::JUMP && (player.isFalling || player.isJumping)){
+                // Use jumping collision box as the player animation should still be using the jumping frames.
+                const auto jumpSprite = reg.get<JumpSprite>(playerEntity);
+                Position jumpSpriteCollisionBoxPosition;
+                Size jumpSpriteCollisionBoxSize;
+
+                if(player.direction == direction::LOOKING_RIGHT){
+                    jumpSpriteCollisionBoxPosition = reg.get<Position>(jumpSprite.rightCollisionBox);
+                    jumpSpriteCollisionBoxSize     = reg.get<Size>(jumpSprite.rightCollisionBox);
+                } else {
+                    jumpSpriteCollisionBoxPosition = reg.get<Position>(jumpSprite.leftCollisionBox);
+                    jumpSpriteCollisionBoxSize     = reg.get<Size>(jumpSprite.leftCollisionBox);
+                }                    
+
+                boxX = (playerPosition.x + jumpSpriteCollisionBoxPosition.x) - camera.position.x;
+                boxY = (playerPosition.y + jumpSpriteCollisionBoxPosition.y) - camera.position.y;
+
+                boxWidth = (float) jumpSpriteCollisionBoxSize.width;
+                boxHeight = (float) jumpSpriteCollisionBoxSize.height;
             
+            } else{
+                boxX = (playerPosition.x + collisionBoxPosition.x) - camera.position.x;
+                boxY = (playerPosition.y + collisionBoxPosition.y) - camera.position.y;
+
+                boxWidth = (float) collisionBoxSize.width;
+                boxHeight = (float) collisionBoxSize.height;
+            }   
+
+            SDL_FRect cBoxRectF = {boxX, boxY, boxWidth, boxHeight};
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderDrawRectF(renderer, &cBoxRectF);
         }    
+    }
+}
+
+void renderPlatformCollisionBox(SDL_Renderer *renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity levelEntity){
+    const auto view = reg.view<CollisionBox, Size, Position>();
+    for(const entt::entity collisionBoxEntity : view){
+        const auto collisionBox         = view.get<CollisionBox>(collisionBoxEntity);
+
+        if(collisionBox.entity == levelEntity){
+            const auto collisionBoxPosition = view.get<Position>(collisionBoxEntity);
+            const auto collisionBoxSize     = view.get<Size>(collisionBoxEntity);    
+
+            SDL_FRect cBoxRectF = {collisionBoxPosition.x - camera.position.x, collisionBoxPosition.y - camera.position.y, (float) collisionBoxSize.width, (float) collisionBoxSize.height};
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            SDL_RenderDrawRectF(renderer, &cBoxRectF);
+        }
+        
     }
 }
