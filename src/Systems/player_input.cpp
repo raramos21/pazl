@@ -32,10 +32,10 @@ void playerInput(entt::registry &reg, SDL_Scancode scancode, const Uint8* curren
             player.direction     = direction::LOOKING_RIGHT;
         }
 
-        if(currentKeyStates[SDL_SCANCODE_E]){
-            player.currentAction = action::ATTACK;
-            player.direction     = direction::LOOKING_RIGHT;
-        }
+        // if(currentKeyStates[SDL_SCANCODE_E]){
+        //     player.currentAction = action::ATTACK;
+        //     player.direction     = direction::LOOKING_RIGHT;
+        // }
     }
 }
 

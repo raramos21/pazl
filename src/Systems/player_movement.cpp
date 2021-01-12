@@ -10,6 +10,7 @@
 #include "../Components/components.hpp"
 
 const float X_WALK_FORCE      = 30000.0f;
+// const float X_WALK_FORCE      = 3000.0f;
 
 const float X_RUN_FORCE       = 1000.0f;
 const float X_RUN_START_FORCE = 35000.0f;
@@ -49,12 +50,12 @@ void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
         float jumpHeight = maxY - Y_JUMP_MAX_HEIGHT;
 
         switch(player.currentAction){
-            case action::WALK:
+            case action::WALK:                
                 if(player.direction == direction::LOOKING_RIGHT){
                     force.x = X_WALK_FORCE;
                 } else {
                     force.x = -X_WALK_FORCE;
-                }
+                }            
                 break;
             case action::RUN:{
                 if(player.direction == direction::LOOKING_RIGHT){
@@ -96,9 +97,16 @@ void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
 
         // SET X-AXIS VELOCITY & POSITION
         {    
+            // if(player.isGoingToCollide && velocity.x == 0){
+                // player.isGoingToCollide = false;
+            // }
+
             // Calculate the velocity and position of the players x-axis.
-            velocity.x = (force.x/player.mass) * dt;
-            position.x += velocity.x * dt;
+            // if(!player.isGoingToCollide){
+                velocity.x = (force.x/player.mass) * dt;    
+                position.x += velocity.x * dt;
+            // }            
+            
 
             // Clamp player to right edge of level if position
             // is greater than the levels width.

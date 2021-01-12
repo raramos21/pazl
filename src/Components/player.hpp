@@ -22,9 +22,10 @@ namespace direction{
 
 struct Player{
     int health;
-    bool isJumping;
-    bool isFalling;
-    bool isColliding;
+    bool isJumping{false};
+    bool isFalling{false};
+    bool isColliding{false};
+    bool isGoingToCollide{false};
     float mass;
 
     action::Action       lastAction;

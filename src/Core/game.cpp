@@ -75,14 +75,21 @@ void gameCreateEntities(SDL_Renderer* renderer){
     auto &platform1        = reg.get<Platform>(platformEntity1);
     platform1.collisionBox = collisionBoxEntity1;
 
-    position = {(float) (game.WIDTH/2) + 100, (float) (game.HEIGHT/2 + 240)};
+    // position = {(float) (game.WIDTH/2) + 100, (float) (game.HEIGHT/2 + 240)};
 
-    auto platformEntity2     = makePlatform(reg, game, levelOne, position, size, color);
-    auto collisionBoxEntity2 = makeCollisionBox(reg, levelOne, position, size, action::NONE, direction::NONE);
+    // auto platformEntity2     = makePlatform(reg, game, levelOne, position, size, color);
+    // auto collisionBoxEntity2 = makeCollisionBox(reg, levelOne, position, size, action::NONE, direction::NONE);
 
-    auto &platform2        = reg.get<Platform>(platformEntity2);
-    platform2.collisionBox = collisionBoxEntity2;
+    // auto &platform2        = reg.get<Platform>(platformEntity2);
+    // platform2.collisionBox = collisionBoxEntity2;
 
+    // position = {(float) (game.WIDTH/2) + 200, (float) (game.HEIGHT/2 + 200)};
+
+    // auto platformEntity3     = makePlatform(reg, game, levelOne, position, size, color);
+    // auto collisionBoxEntity3 = makeCollisionBox(reg, levelOne, position, size, action::NONE, direction::NONE);
+
+    // auto &platform3        = reg.get<Platform>(platformEntity3);
+    // platform3.collisionBox = collisionBoxEntity3;
 
     levels.push_back(levelOne);
 
@@ -150,6 +157,7 @@ void gameRender(SDL_Renderer* renderer){
     renderLevel(renderer, reg, game, camera, levels[currentLevel]);
     renderPlatforms(renderer, reg, game, camera, levels[currentLevel]);
     renderPlayer(renderer, reg, &game, camera, showDevInfo);
+    
     if(showDevInfo){
         renderPlayerCollisionBox(renderer, reg, game, camera, player);
         renderPlatformCollisionBox(renderer, reg, game, camera, levels[currentLevel]);

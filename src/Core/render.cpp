@@ -279,13 +279,17 @@ void renderPlayerCollisionBox(SDL_Renderer *renderer, entt::registry &reg, GameS
             } else{
                 boxX = (playerPosition.x + collisionBoxPosition.x) - camera.position.x;
                 boxY = (playerPosition.y + collisionBoxPosition.y) - camera.position.y;
+                // boxX = collisionBoxPosition.x - camera.position.x;
+                // boxY = collisionBoxPosition.y - camera.position.y;
 
                 boxWidth = (float) collisionBoxSize.width;
                 boxHeight = (float) collisionBoxSize.height;
             }   
 
             SDL_FRect cBoxRectF = {boxX, boxY, boxWidth, boxHeight};
-            if(player.isColliding){
+            if(player.isGoingToCollide){
+                SDL_SetRenderDrawColor(renderer, 248, 129, 18, 255);
+            } else if(player.isColliding){
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             } else{
                 SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -299,18 +303,22 @@ void renderPlayerCollisionBox(SDL_Renderer *renderer, entt::registry &reg, GameS
 void renderPlatformCollisionBox(SDL_Renderer *renderer, entt::registry &reg, GameSettings game, Camera camera, entt::entity levelEntity){
     const auto view = reg.view<CollisionBox, Size, Position>();
     for(const entt::entity collisionBoxEntity : view){
-        const auto collisionBox         = view.get<CollisionBox>(collisionBoxEntity);
+        const auto collisionBox = view.get<CollisionBox>(collisionBoxEntity);
 
         if(collisionBox.entity == levelEntity){
             const auto collisionBoxPosition = view.get<Position>(collisionBoxEntity);
             const auto collisionBoxSize     = view.get<Size>(collisionBoxEntity);    
 
             SDL_FRect cBoxRectF = {collisionBoxPosition.x - camera.position.x, collisionBoxPosition.y - camera.position.y, (float) collisionBoxSize.width, (float) collisionBoxSize.height};
-            if(collisionBox.isColliding){
+            
+            if(collisionBox.isGoingToCollide){
+                SDL_SetRenderDrawColor(renderer, 248, 129, 18, 255);
+            } else if(collisionBox.isColliding){
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             } else{
                 SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
             }
+            
             SDL_RenderDrawRectF(renderer, &cBoxRectF);
         }
         
