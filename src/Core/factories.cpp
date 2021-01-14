@@ -132,15 +132,15 @@ entt::entity makePlayer(SDL_Renderer *renderer, entt::registry &reg, GameSetting
     runSprite.size.height = DEFAULT_SPRITE.height * SPRITE_SCALE_FACTOR;
     
     auto &walkSprite = reg.emplace<WalkSprite>(playerEntity);
-    SDL_CHECK(loadSpriteFromFile(renderer, walkSprite, "assets/player/Woodcutter_walk_red.png"));
+    SDL_CHECK(loadSpriteFromFile(renderer, walkSprite, "assets/player/Woodcutter_walk_red_40x40.png"));
 
     walkSprite.total_frames = 30;    
-    SDL_Rect walk1{ 0, 0, 40, 45};
-    SDL_Rect walk2{ 45, 0, 40, 45};
-    SDL_Rect walk3{ 90, 0, 40, 45};
-    SDL_Rect walk4{ 135, 0, 40, 45};
-    SDL_Rect walk5{ 180, 0, 40, 45};
-    SDL_Rect walk6{ 225, 0, 40, 45};
+    SDL_Rect walk1{ 0, 0, 40, 40};
+    SDL_Rect walk2{ 40, 0, 40, 40};
+    SDL_Rect walk3{ 80, 0, 40, 40};
+    SDL_Rect walk4{ 120, 0, 40, 40};
+    SDL_Rect walk5{ 160, 0, 40, 40};
+    SDL_Rect walk6{ 200, 0, 40, 40};
 
     walkSprite.spriteClips.push_back(walk1);
     walkSprite.spriteClips.push_back(walk1);
@@ -262,7 +262,7 @@ entt::entity makePlayer(SDL_Renderer *renderer, entt::registry &reg, GameSetting
     idleSprite.leftCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::IDLE, direction::LOOKING_LEFT);   
 
     // WALK COLLISION BOX
-    cBoxPosition = {17 * SPRITE_SCALE_FACTOR, 8 * SPRITE_SCALE_FACTOR};
+    cBoxPosition = {13 * SPRITE_SCALE_FACTOR, 8 * SPRITE_SCALE_FACTOR};
     cBoxSize = {(int)(13 * SPRITE_SCALE_FACTOR), (int)(37 * SPRITE_SCALE_FACTOR)};
 
     walkSprite.rightCollisionBox = makeCollisionBox(reg, playerEntity, cBoxPosition, cBoxSize, action::WALK, direction::LOOKING_RIGHT);

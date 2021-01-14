@@ -149,6 +149,10 @@ void gameDefaultInput(SDL_Scancode scancode){
 void gameLogic(double t, float dt){    
     playerMovement(reg, dt, levels[currentLevel]);
     playerCollideWithPlatforms(reg, dt, player, levels[currentLevel]);
+
+    
+    
+    
 }
 
 void gameRender(SDL_Renderer* renderer){
@@ -157,7 +161,7 @@ void gameRender(SDL_Renderer* renderer){
     renderLevel(renderer, reg, game, camera, levels[currentLevel]);
     renderPlatforms(renderer, reg, game, camera, levels[currentLevel]);
     renderPlayer(renderer, reg, &game, camera, showDevInfo);
-    
+
     if(showDevInfo){
         renderPlayerCollisionBox(renderer, reg, game, camera, player);
         renderPlatformCollisionBox(renderer, reg, game, camera, levels[currentLevel]);
