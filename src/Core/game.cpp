@@ -147,11 +147,8 @@ void gameDefaultInput(SDL_Scancode scancode){
 }
 
 void gameLogic(double t, float dt){    
-    playerMovement(reg, dt, levels[currentLevel]);
+    playerMovement(reg, dt, player);
     playerCollideWithPlatforms(reg, dt, player, levels[currentLevel]);
-
-    
-    
     
 }
 

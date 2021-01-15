@@ -11,6 +11,9 @@ void playerInitialPosition(entt::registry & reg, entt::entity levelEntity, entt:
 
     playerPosition.y = level.floor - sprite.size.height;
     playerPosition.x = levelPosition.x;
+    
     player.isGoingToCollide = false;
-    player.isColliding = false;
+    player.isColliding      = false;
+    player.isJumping        = false;
+    player.isFalling        = false;
 }

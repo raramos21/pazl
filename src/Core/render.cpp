@@ -154,7 +154,7 @@ void renderPlayerInfo(SDL_Renderer *renderer, entt::registry &reg, GameSettings 
         std::string currentAction = getPlayerActionString(player.currentAction);
         std::string direction     = getPlayerDirectionString(player.direction);
 
-        SDL_Rect fillRect = {0, 0, 550, 250};
+        SDL_Rect fillRect = {0, 0, 550, 275};
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderFillRect(renderer, &fillRect);
@@ -179,7 +179,9 @@ void renderPlayerInfo(SDL_Renderer *renderer, entt::registry &reg, GameSettings 
         textPosition.y += 25;
         renderText(renderer, game.FONT, textPosition, color, "Velocity x: " + std::to_string(velocity.x) + ", y: " + std::to_string(velocity.y));
         textPosition.y += 25;
-        renderText(renderer, game.FONT, textPosition, color, "Force x: " + std::to_string(force.x) + ", y: " + std::to_string(force.y));      
+        renderText(renderer, game.FONT, textPosition, color, "Force x: " + std::to_string(force.x) + ", y: " + std::to_string(force.y));
+        textPosition.y += 25;
+        renderText(renderer, game.FONT, textPosition, color, "isJumping: " + std::to_string(player.isJumping) + ", isFalling: " + std::to_string(player.isFalling));
     }
 }
 

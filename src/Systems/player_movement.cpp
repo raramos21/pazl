@@ -8,6 +8,7 @@
 #include "player_movement.hpp"
 
 #include "../Components/components.hpp"
+#include "../Util/clamp.hpp"
 
 const float X_WALK_FORCE      = 30000.0f;
 // const float X_WALK_FORCE      = 3000.0f;
@@ -26,167 +27,144 @@ const float MAX_JUMP_DAMPENING = 0.1f; // MILLISECONDS
 float jumpDampening = 0.0f;
 // float playerMovementDampening = 0.0f;
 
-void playerMovement(entt::registry & reg, float dt, entt::entity levelEntity){
-    const auto level         = reg.get<Level>(levelEntity);
-    const auto levelSize     = reg.get<Size>(levelEntity);
-    const auto levelPosition = reg.get<Position>(levelEntity);
+void playerMovement(entt::registry & reg, float dt, entt::entity playerEntity){
+    auto &player   = reg.get<Player>(playerEntity);
+    auto &position = reg.get<Position>(playerEntity);
+    auto &velocity = reg.get<Velocity>(playerEntity);
+    auto &force    = reg.get<Force>(playerEntity);
+    auto &sprite   = reg.get<IdleSprite>(playerEntity);
     
-    const auto view  = reg.view<Player, Position, Velocity, Force, IdleSprite>();
+    // maxY -= sprite.size.height;
+    // maxX -= sprite.size.width;
 
-    float maxX    = levelPosition.x + levelSize.width;
-    float minX    = levelPosition.x;
-    float maxY    = levelPosition.y + levelSize.height;                          
-    float minY    = levelPosition.y;
+    float xAcceleration = 0;
+    float yAcceleration = 1;
 
-    float accelerationX = 0;
-    float accelerationY = 0;
+    // float jumpHeight = maxY - Y_JUMP_MAX_HEIGHT;
 
-    for(const entt::entity e: view) {
-        auto &player   = view.get<Player>(e);
-        auto &position = view.get<Position>(e);
-        auto &velocity = view.get<Velocity>(e);
-        auto &force    = view.get<Force>(e);
-        auto &sprite   = view.get<IdleSprite>(e);
-        
-        maxY -= sprite.size.height;
-        maxX -= sprite.size.width;
-
-        float jumpHeight = maxY - Y_JUMP_MAX_HEIGHT;
-
-        switch(player.currentAction){
-            case action::WALK:                
-                // if(player.direction == direction::LOOKING_RIGHT){
-                //     force.x = X_WALK_FORCE;
-                // } else {
-                //     force.x = -X_WALK_FORCE;
-                // }      
-                if(player.direction == direction::LOOKING_RIGHT){
-                    accelerationX = 1;
-                } else {
-                    accelerationX = -1;
-                }            
-                break;
-            case action::RUN:{
-                // if(player.direction == direction::LOOKING_RIGHT){
-                //     if(player.lastAction == action::RUN){
-                //         if(force.x < X_RUN_MAX_FORCE){
-                //             force.x += X_RUN_FORCE;
-                //         } 
-                //     } else {
-                //         force.x = X_RUN_START_FORCE;
-                //     }                
-                // } else {
-                //     if(player.lastAction == action::RUN){
-                //         if(force.x > -X_RUN_MAX_FORCE){
-                //             force.x -= X_RUN_FORCE;
-                //         }
-                //     } else {
-                //         force.x = -X_RUN_START_FORCE;
-                //     }                
-                // }                   
-                break;
-            }                
-            case action::JUMP: {
-                // if(!player.isJumping && jumpDampening >= MAX_JUMP_DAMPENING){
-                //     player.isJumping = true;
-                //     force.y = -Y_JUMP_FORCE;
-                // }     
-                if(!player.isJumping){ // && jumpDampening >= MAX_JUMP_DAMPENING){
-                    player.isJumping = true;
-                    // force.y = -Y_JUMP_FORCE;
-                    accelerationY = 1;
-                }  
-                break;
-            }
-            case action::IDLE:
-                force.x = 0;
-                // force.y = 0;
-                break;
-            case action::ATTACK:
-                break;
-            default:               
-                break;
-        }
-
-
-        // SET X-AXIS VELOCITY & POSITION
-        {
-            float playerSpeed = 500;
-            accelerationX *= playerSpeed;
-            accelerationX += -0.1f*velocity.x;
-
-            // Calculate the velocity and position of the players x-axis.
-            force.x = accelerationX * player.mass;
-            // position.x += 0.5*accelerationX*(dt*dt) + velocity.x*dt;
-            // velocity.x += (force.x/player.mass) * dt;    
-            velocity.x += accelerationX*dt; 
-            
-
-            // Clamp player to right edge of level if position
-            // is greater than the levels width.
-            if(position.x > maxX){
-                position.x = maxX;
-            }
-
-            // Same as before but on the left side.
-            if(position.x < minX){
-                position.x = minX;
-            }
-        }       
-
-
-        // SET Y-AXIS VELOCITY & POSITION
-        {
-            float playerSpeed = -300.0f;
-            float gravity = 1000.0f;
-
-            accelerationY *= gravity;
-            if(player.isJumping) {
-                accelerationY *= playerSpeed;
-                force.y = accelerationY * player.mass;
+    switch(player.currentAction){
+        case action::WALK:  
+            if(player.direction == direction::LOOKING_RIGHT){
+                xAcceleration = 1;
+            } else {
+                xAcceleration = -1;
             }            
-
-            velocity.y = accelerationY * dt;
+            break;
+        case action::RUN:{
+            // if(player.direction == direction::LOOKING_RIGHT){
+            //     if(player.lastAction == action::RUN){
+            //         if(force.x < X_RUN_MAX_FORCE){
+            //             force.x += X_RUN_FORCE;
+            //         } 
+            //     } else {
+            //         force.x = X_RUN_START_FORCE;
+            //     }                
+            // } else {
+            //     if(player.lastAction == action::RUN){
+            //         if(force.x > -X_RUN_MAX_FORCE){
+            //             force.x -= X_RUN_FORCE;
+            //         }
+            //     } else {
+            //         force.x = -X_RUN_START_FORCE;
+            //     }                
+            // }                   
+            break;
+        }                
+        case action::JUMP: {
+            // if(!player.isJumping && jumpDampening >= MAX_JUMP_DAMPENING){
+            //     player.isJumping = true;
+            //     force.y = -Y_JUMP_FORCE;
+            // }     
+            if(!player.isJumping){ // && jumpDampening >= MAX_JUMP_DAMPENING){
+                player.isJumping = true;
+            //     // force.y = -Y_JUMP_FORCE;
+                // yAcceleration = 1;
+            }  
+            break;
         }
-        // {
-            
-
-        //     // Player is still in his jumping action but not yet
-        //     // falling, so we continue to increase his jump force.
-        //     if(player.isJumping && !player.isFalling) {
-        //         force.y -= Y_JUMP_FORCE;
-        //     }
-
-        //     // Player is now falling so we inverse his y-force until he reaches the ground.
-        //     if(player.isFalling){
-        //         force.y += Y_FALL_FORCE;
-        //     }
-
-        //     // Calculate the velocity and position of the players y-axis.
-        //     velocity.y = (force.y/player.mass) * dt;
-        //     // position.y += velocity.y * dt;
-
-        //     if(!player.isJumping) jumpDampening += dt;
-            
-        //     if(position.y < minY){
-        //         // Clamp the y-axis position to the levels height
-        //         // if level height is shorter than the default jump height.
-        //         // So must fall!!
-        //         position.y = minY;
-        //         force.y = -Y_FALL_FORCE;
-        //         player.isFalling = true;
-        //     } else if(position.y <= jumpHeight){
-        //         // Player has reached the max jump height and is now falling.
-        //         player.isFalling = true;
-        //     } else if(position.y > maxY){
-        //         // Player has reached the floor/maxY so he has stopped falling and jumping.
-        //         jumpDampening = 0.0f;
-        //         player.isFalling = false;
-        //         player.isJumping = false;
-        //         force.y = 0.0f;
-        //         position.y = maxY;
-        //     }       
-        // }
-      
+        case action::IDLE:
+            force.x = 0;
+            break;
+        case action::ATTACK:
+            break;
+        default:               
+            break;
     }
+
+
+    // SET X-AXIS VELOCITY & POSITION
+    {
+        float playerSpeed = 3000;
+        xAcceleration *= playerSpeed;
+        xAcceleration += -7.5f * velocity.x;
+
+        // Calculate the velocity and force of the players x-axis.
+        force.x = xAcceleration * player.mass;
+        velocity.x += xAcceleration * dt;
+    }
+
+    // SET Y-AXIS VELOCITY & POSITION
+    {
+        float jumpSpeed = 3000.0f;
+        float fallSpeed = 7000.0f;
+        // float gravity = 10.0f;        
+
+        if(!player.isJumping && !player.isFalling){
+            velocity.y = 0;
+        }
+
+        if(player.isJumping && !player.isFalling) {
+            // yAcceleration = gravity * velocity.y;
+            yAcceleration -= jumpSpeed;
+            // printf("acceleration: %f\n", yAcceleration);
+        }
+
+        if(player.isFalling){
+            yAcceleration += fallSpeed;
+            // yAcceleration *= -1;
+        }   
+
+        force.y = yAcceleration * player.mass;
+        velocity.y += yAcceleration * dt;
+    }
+
+    // {
+    //     // Player is still in his jumping action but not yet
+    //     // falling, so we continue to increase his jump force.
+    //     if(player.isJumping && !player.isFalling) {
+    //         force.y -= Y_JUMP_FORCE;
+    //     }
+
+    //     // Player is now falling so we inverse his y-force until he reaches the ground.
+    //     if(player.isFalling){
+    //         force.y += Y_FALL_FORCE;
+    //     }
+
+    //     // Calculate the velocity and position of the players y-axis.
+    //     velocity.y += (force.y/player.mass) * dt;
+    //     // position.y += velocity.y * dt;
+
+    //     if(!player.isJumping) jumpDampening += dt;
+        
+    //     if(position.y < minY){
+    //         // Clamp the y-axis position to the levels height
+    //         // if level height is shorter than the default jump height.
+    //         // So must fall!!
+    //         position.y = minY;
+    //         force.y = -Y_FALL_FORCE;
+    //         player.isFalling = true;
+    //     } else if(position.y <= jumpHeight){
+    //         // Player has reached the max jump height and is now falling.
+    //         player.isFalling = true;
+    //     } else if(position.y > maxY){
+    //         // Player has reached the floor/maxY so he has stopped falling and jumping.
+    //         jumpDampening = 0.0f;
+    //         player.isFalling = false;
+    //         player.isJumping = false;
+    //         force.y = 0.0f;
+    //         position.y = maxY;
+    //     }       
+    // }
+    
+
 }

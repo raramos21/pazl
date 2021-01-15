@@ -2,6 +2,7 @@
 
 #include "../Components/components.hpp"
 #include "../Systems/player_movement.hpp"
+#include "../Util/clamp.hpp"
 
 #include <SDL.h>
 
@@ -65,7 +66,7 @@ bool simpleAABBCollision(Position aPos, Size aSize, Position bPos, Size bSize){
     return true;
 }
 
-float sweptAABB(Position aPos, Size aSize, Velocity aVel, Position bPos, Size bSize, Velocity bVel, float &normalX, float &normalY){
+float sweptAABB(Position aPos, Size aSize, Velocity aVel, Position bPos, Size bSize, float &normalX, float &normalY){
     // xInvEntry and yInvEntry both specify how far away the closest edges of the objects are from each other.
     // xInvExit and yInvExit is the distance to the far side of the object.
     float xInvEntry, yInvEntry;
@@ -194,6 +195,23 @@ velocity = velocity - 2*inner(velocity, r)*r
 coefficient of restitution
 */
 
+float lerp(float a, float b, float f){
+    return (a * (1.0f - f)) + (b * f);
+}
+
+Position lerp(Position a, Position b, float f){
+    Position result;
+
+    result.x = lerp(a.x, b.x, f);
+    result.y = lerp(a.y, b.y, f);
+    return result;
+}
+
+inline 
+Position operator-(Position const &a, Position const &b){
+    return Position{a.x -b.x, a.y - b.y};
+}
+
 void playerCollideWithPlatforms(entt::registry &reg, float dt, entt::entity playerEntity, entt::entity levelEntity){
     auto &player         = reg.get<Player>(playerEntity);
     auto &playerPosition = reg.get<Position>(playerEntity);
@@ -226,7 +244,7 @@ void playerCollideWithPlatforms(entt::registry &reg, float dt, entt::entity play
         sprite = reg.get<JumpSprite>(playerEntity);
     }
 
-    // sprite = reg.get<WalkSprite>(playerEntity);
+    sprite = reg.get<WalkSprite>(playerEntity);
 
     if(player.direction == direction::LOOKING_RIGHT){
         playerCollisionBoxPosition = reg.get<Position>(sprite.rightCollisionBox);
@@ -236,17 +254,10 @@ void playerCollideWithPlatforms(entt::registry &reg, float dt, entt::entity play
         playerCollisionBoxSize     = reg.get<Size>(sprite.leftCollisionBox);
     }
     
-    // tempPos.x = 0.5*(playerForce.x/player.mass)*(dt*dt) + playerVelocity.x*dt + playerPosition.x;
-    // tempPos.y = 0.5*(playerForce.y/player.mass)*(dt*dt) + playerVelocity.y*dt + playerPosition.y;
-    // playerVelocity.x += (playerForce.x/player.mass)*dt;
-    // tempVel.y = (playerForce.y/player.mass)*dt + playerVelocity.y; 
-
-    // playerPosition = tempPos;
-    // playerVelocity = tempVel;
 
     playerCollisionBoxPosition.x += playerPosition.x;
     playerCollisionBoxPosition.y += playerPosition.y;        
-    // player.isColliding = false;
+    player.isColliding = false;
     // player.isGoingToCollide       = false;
     
     float collisionTime = 0;
@@ -262,96 +273,55 @@ void playerCollideWithPlatforms(entt::registry &reg, float dt, entt::entity play
             collisionBox.isColliding = false;
             collisionBox.isGoingToCollide = false;
 
-
             if(simpleAABBCollision(playerCollisionBoxPosition, playerCollisionBoxSize, collisionBoxPosition, collisionBoxSize)){
                 player.isColliding       = true;
                 collisionBox.isColliding = true; 
             }
-            
-            // float distanceX, distanceY;
-            // calculateAABBDistance(playerCollisionBoxPosition, playerCollisionBoxSize, collisionBoxPosition, collisionBoxSize, distanceX, distanceY);
 
-            // float velocityX, velocityY;
-            // velocityX = playerVelocity.x;
-            // velocityY = playerVelocity.y;
-
-            // float xAxisTimetoCollide = velocityX != 0 ? abs(distanceX / velocityX) : 0;
-            // float yAxisTimetoCollide = velocityY != 0 ? abs(distanceY / velocityY) : 0;
-
-            // float shortestTime = 0;
-            
-            // if(xAxisTimetoCollide < 1.0f && yAxisTimetoCollide < 1.0f){
-            //     if(velocityX != 0 && velocityY == 0){
-            //         // player.isGoingToCollide = true;
-            //         shortestTime = xAxisTimetoCollide;
-
-            //         // playerForce.x = (velocityX * shortestTime) / player.mass;
-            //         playerPosition.x += shortestTime * velocityX;
-
-            //         float remainingTime = (1.0f / 120.0f) - shortestTime;
-
-            //         playerVelocity.x *= remainingTime;
-            //         playerPosition.x += playerVelocity.x;
-            //         // player.isColliding = true;
-
-            //     }
-            //     //  else if(velocityX == 0 && velocityY !=0){ 
-            //     //     // playerPosition.y = shortestTime * velocityY;
-            //     // } else{
-            //     //     // player.isGoingToCollide = true;
-            //     //     shortestTime = std::min(abs(xAxisTimetoCollide), abs(yAxisTimetoCollide));
-            //     //     playerPosition.x = shortestTime * velocityX;
-            //     //     // playerPosition.y = shortestTime * velocityY;
-            //     // }
-            // }
-
-
-            Velocity collisionBoxVel{0.0, 0.0};
-
-            
-            collisionTime = sweptAABB(playerCollisionBoxPosition, playerCollisionBoxSize, playerVelocity, collisionBoxPosition, collisionBoxSize, collisionBoxVel, normalX, normalY);
-            
-            // printf("collisiontime: %f, normalX: %f, normalY: %f\n", collisionTime, normalX, normalY);
-            
-            // tempPos.x += tempVel.x * collisionTime;
-            // float remainingTime = (1.0f) - collisionTime;
-            // tempVel.x *= remainingTime;
-
-            if(collisionTime < 1.0f){
-            //     player.isGoingToCollide       = true;
-            //     collisionBox.isGoingToCollide = true;
-                // playerForce.x = (tempVel.x * collisionTime) / player.mass;                
-                // playerPosition.x += tempVel.x * collisionTime;
-
-                // playerForce.x = (playerVelocity.x * collisionTime) / player.mass;     
-                // playerVelocity.x *= collisionTime;           
-            }
+            collisionTime = sweptAABB(playerCollisionBoxPosition, playerCollisionBoxSize, playerVelocity, collisionBoxPosition, collisionBoxSize, normalX, normalY);
         }        
     }
-
-    // playerVelocity.x = ; 
-    // playerPosition.x += 0.5*(playerForce.x/player.mass)*(dt*dt) + playerVelocity.x*dt + playerPosition.x;
-    // tempPos.y = 0.5*(playerForce.y/player.mass)*(dt*dt) + playerVelocity.y*dt + playerPosition.y;
     
-    // tempVel.y = (playerForce.y/player.mass)*dt + playerVelocity.y; 
 
+    {
+        const auto level         = reg.get<Level>(levelEntity);
+        const auto levelSize     = reg.get<Size>(levelEntity);
+        const auto levelPosition = reg.get<Position>(levelEntity);
 
-    playerPosition.x += playerVelocity.x * collisionTime;  
-    playerPosition.y += playerVelocity.y * collisionTime;  
-    // playerPosition.x += 0.5*(playerForce.x/player.mass)*(collisionTime*collisionTime) + playerVelocity.x*collisionTime;
+        float xMax    = levelPosition.x + levelSize.width;
+        float xMin    = levelPosition.x;
+        float yMin    = levelPosition.y + levelSize.height;                          
+        float yMax    = levelPosition.y;
 
-    float remainingTime = 1.0f - collisionTime;
+        yMin -= sprite.size.height;
+        xMax -= sprite.size.width;
 
-    playerVelocity.x *= remainingTime;
-    playerVelocity.y *= remainingTime;
- 
-    if(abs(normalX) > 0.0001f){
-        playerVelocity.x *= -1;
+        if(collisionTime < 0.01f){
+            playerPosition.x += playerVelocity.x * collisionTime;  
+            playerPosition.y += playerVelocity.y * collisionTime;  
+            float remainingTime = 1.0f - collisionTime;
+
+            float dotprod = (playerVelocity.x * normalY + playerVelocity.y * normalX) * remainingTime;
+            playerVelocity.x = dotprod * normalY;
+            playerVelocity.y = dotprod * normalX;
+        } else {
+            playerPosition.x += 0.5*(playerForce.x/player.mass)*(dt*dt) + playerVelocity.x*dt;
+            playerPosition.y += 0.5*(playerForce.y/player.mass)*(dt*dt) + playerVelocity.y*dt;
+        }        
+
+        clamp(&playerPosition, xMin, xMax, yMin, yMax);
+
+        float jumpHeight = yMin - 150.0f;
+        if(playerPosition.y < jumpHeight){
+            playerPosition.y = jumpHeight;
+            player.isFalling = true;
+            playerForce.y = 0;
+        } else if(playerPosition.y == yMax){
+            player.isFalling = true;
+        } else if(playerPosition.y == yMin){
+            player.isJumping = false;
+            player.isFalling = false;
+            playerForce.y = 0;
+        }
     }
-     
-    if(abs(normalY) > 0.0001f){
-        playerVelocity.y *= -1;
-    }    
-    
-
 }
