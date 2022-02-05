@@ -19,7 +19,7 @@ bool AABBCollision(Position aPos, Size aSize, Position bPos, Size bSize){
 
     float bMinX = bPos.x;
     float bMinY = bPos.y + bSize.height;
-    
+
     float d1x = bMinX - aMaxX;
     float d1y = bMinY - aMaxY;
     float d2x = aMinX - bMaxX;
@@ -27,10 +27,10 @@ bool AABBCollision(Position aPos, Size aSize, Position bPos, Size bSize){
 
     if(d1x > 0.0f || d1y > 0.0f)
         return false;
-    
+
     if(d2x > 0.0f || d2y > 0.0f)
         return false;
-    
+
     return true;
 }
 
@@ -46,7 +46,7 @@ bool simpleAABBCollision(Position aPos, Size aSize, Position bPos, Size bSize){
 
     float bMinX = bPos.x;
     float bMinY = bPos.y + bSize.height;
-    
+
     if(aMinY <= bMaxY){
         return false;
     }
@@ -62,7 +62,7 @@ bool simpleAABBCollision(Position aPos, Size aSize, Position bPos, Size bSize){
     if(aMinX >= bMaxX){
         return false;
     }
-    
+
     return true;
 }
 
@@ -74,7 +74,7 @@ float sweptAABB(Position aPos, Size aSize, Velocity aVel, Position bPos, Size bS
 
     if(aVel.x > 0.0f){
         xInvEntry = bPos.x - (aPos.x + aSize.width);
-        xInvExit  = (bPos.x + bSize.width) - aPos.x; 
+        xInvExit  = (bPos.x + bSize.width) - aPos.x;
     } else{
         xInvEntry = (bPos.x + bSize.width) - aPos.x;
         xInvExit  = bPos.x - (aPos.x + aSize.width);
@@ -112,7 +112,7 @@ float sweptAABB(Position aPos, Size aSize, Velocity aVel, Position bPos, Size bS
 
     float entryTime = std::max(xEntry, yEntry);
     float exitTime  = std::min(xExit, yExit);
-    
+
     float aMaxX = aPos.x + aSize.width;
     float aMaxY = aPos.y;
 
@@ -124,20 +124,20 @@ float sweptAABB(Position aPos, Size aSize, Velocity aVel, Position bPos, Size bS
 
     float bMinX = bPos.x;
     float bMinY = bPos.y + bSize.height;
-    
+
     normalX = 0.0f;
     normalY = 0.0f;
 
-    // if(entryTime > exitTime || (xEntry < 0.0f && yEntry < 0.0f)){ // || xEntry > 1.0f || yEntry > 1.0f){    
-    if(entryTime > exitTime || (xEntry < 0.0f && yEntry < 0.0f) || xEntry > 1.0f || yEntry > 1.0f){    
+    // if(entryTime > exitTime || (xEntry < 0.0f && yEntry < 0.0f)){ // || xEntry > 1.0f || yEntry > 1.0f){
+    if(entryTime > exitTime || (xEntry < 0.0f && yEntry < 0.0f) || xEntry > 1.0f || yEntry > 1.0f){
         return 1.0f;
-    } 
+    }
     // if(xEntry < 0.0f){
-    //     if(aMaxX < bMinX || aMinX > bMaxX) return 1.0f; 
-    // } 
+    //     if(aMaxX < bMinX || aMinX > bMaxX) return 1.0f;
+    // }
     // if(xEntry < 0.0f){
     //     if(aMaxY < bMinY || aMinY > bMaxY) return 1.0f;
-    // } 
+    // }
     else{
         if(xEntry > yEntry){
             if(xInvEntry < 0.0f){
@@ -146,7 +146,7 @@ float sweptAABB(Position aPos, Size aSize, Velocity aVel, Position bPos, Size bS
             } else{
                 normalX = -1.0f;
                 normalY = 0.0f;
-            }            
+            }
         } else{
             if(yInvEntry < 0.0f){
                 normalX = 0.0f;
@@ -207,7 +207,7 @@ Position lerp(Position a, Position b, float f){
     return result;
 }
 
-inline 
+inline
 Position operator-(Position const &a, Position const &b){
     return Position{a.x -b.x, a.y - b.y};
 }
@@ -228,7 +228,7 @@ void playerCollideWithPlatforms(entt::registry &reg, float dt, entt::entity play
         case action::IDLE:{
             sprite = reg.get<IdleSprite>(playerEntity);
             break;
-        }                
+        }
         case action::WALK:
             sprite = reg.get<WalkSprite>(playerEntity);
             break;
@@ -237,6 +237,8 @@ void playerCollideWithPlatforms(entt::registry &reg, float dt, entt::entity play
             break;
         case action::JUMP:
             sprite = reg.get<JumpSprite>(playerEntity);
+            break;
+        default:
             break;
     }
 
@@ -253,35 +255,35 @@ void playerCollideWithPlatforms(entt::registry &reg, float dt, entt::entity play
         playerCollisionBoxPosition = reg.get<Position>(sprite.leftCollisionBox);
         playerCollisionBoxSize     = reg.get<Size>(sprite.leftCollisionBox);
     }
-    
+
 
     playerCollisionBoxPosition.x += playerPosition.x;
-    playerCollisionBoxPosition.y += playerPosition.y;        
+    playerCollisionBoxPosition.y += playerPosition.y;
     player.isColliding = false;
     // player.isGoingToCollide       = false;
-    
+
     float collisionTime = 0;
     float normalX, normalY;
 
     for(const entt::entity collisionBoxEntity : view){
-        auto &collisionBox = view.get<CollisionBox>(collisionBoxEntity);       
+        auto &collisionBox = view.get<CollisionBox>(collisionBoxEntity);
 
         if(collisionBox.entity == levelEntity){
             auto &collisionBoxPosition = view.get<Position>(collisionBoxEntity);
             const auto collisionBoxSize     = view.get<Size>(collisionBoxEntity);
-            
+
             collisionBox.isColliding = false;
             collisionBox.isGoingToCollide = false;
 
             if(simpleAABBCollision(playerCollisionBoxPosition, playerCollisionBoxSize, collisionBoxPosition, collisionBoxSize)){
                 player.isColliding       = true;
-                collisionBox.isColliding = true; 
+                collisionBox.isColliding = true;
             }
 
             collisionTime = sweptAABB(playerCollisionBoxPosition, playerCollisionBoxSize, playerVelocity, collisionBoxPosition, collisionBoxSize, normalX, normalY);
-        }        
+        }
     }
-    
+
 
     {
         const auto level         = reg.get<Level>(levelEntity);
@@ -290,15 +292,15 @@ void playerCollideWithPlatforms(entt::registry &reg, float dt, entt::entity play
 
         float xMax    = levelPosition.x + levelSize.width;
         float xMin    = levelPosition.x;
-        float yMin    = levelPosition.y + levelSize.height;                          
+        float yMin    = levelPosition.y + levelSize.height;
         float yMax    = levelPosition.y;
 
         yMin -= sprite.size.height;
         xMax -= sprite.size.width;
 
         if(collisionTime < 0.01f){
-            playerPosition.x += playerVelocity.x * collisionTime;  
-            playerPosition.y += playerVelocity.y * collisionTime;  
+            playerPosition.x += playerVelocity.x * collisionTime;
+            playerPosition.y += playerVelocity.y * collisionTime;
             float remainingTime = 1.0f - collisionTime;
 
             float dotprod = (playerVelocity.x * normalY + playerVelocity.y * normalX) * remainingTime;
@@ -307,7 +309,7 @@ void playerCollideWithPlatforms(entt::registry &reg, float dt, entt::entity play
         } else {
             playerPosition.x += 0.5*(playerForce.x/player.mass)*(dt*dt) + playerVelocity.x*dt;
             playerPosition.y += 0.5*(playerForce.y/player.mass)*(dt*dt) + playerVelocity.y*dt;
-        }        
+        }
 
         clamp(&playerPosition, xMin, xMax, yMin, yMax);
 

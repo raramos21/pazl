@@ -58,10 +58,10 @@ void gameCreateEntities(SDL_Renderer* renderer){
     Color color;
     color.red   = 37;
     color.green = 112;
-    color.blue  = 78;    
+    color.blue  = 78;
     color.alpha = 255;
     entt::entity levelOne = makeLevel(reg, game, 0.8, 0.8, color, "Level One");
-    
+
     Position position{(float) (game.WIDTH/2), (float) (game.HEIGHT/2 + 280)};
     Size size{100, 30};
 
@@ -75,7 +75,7 @@ void gameCreateEntities(SDL_Renderer* renderer){
     auto &platform1        = reg.get<Platform>(platformEntity1);
     platform1.collisionBox = collisionBoxEntity1;
 
-    // position = {(float) (game.WIDTH/2) + 100, (float) (game.HEIGHT/2 + 240)};
+    position = {(float) (game.WIDTH/2) + 100, (float) (game.HEIGHT/2 + 240)};
 
     // auto platformEntity2     = makePlatform(reg, game, levelOne, position, size, color);
     // auto collisionBoxEntity2 = makeCollisionBox(reg, levelOne, position, size, action::NONE, direction::NONE);
@@ -93,19 +93,19 @@ void gameCreateEntities(SDL_Renderer* renderer){
 
     levels.push_back(levelOne);
 
-    color.green = 78; 
+    color.green = 78;
     color.blue  = 112;
     color.alpha = 255;
     levels.push_back(makeLevel(reg, game, 0.6, 0.7, color, "Level Two"));
 
     color.red   = 255;
-    color.green = 71; 
+    color.green = 71;
     color.blue  = 71;
     color.alpha = 255;
     levels.push_back(makeLevel(reg, game, 0.4, 0.8, color, "Level Three"));
 
     color.red   = 255;
-    color.green = 238; 
+    color.green = 238;
     color.blue  = 11;
     color.alpha = 255;
     entt::entity levelFour = makeLevel(reg, game, 5, 0.28, color, "Level Four");
@@ -120,11 +120,11 @@ void gameCreateEntities(SDL_Renderer* renderer){
 
 
     color.red   = 0;
-    color.green = 39; 
+    color.green = 39;
     color.blue  = 43;
     color.alpha = 255;
     levels.push_back(makeLevel(reg, game, 1.10, 1, color, "Level Five"));
-    
+
     playerInitialPosition(reg, levels[currentLevel], player);
     cameraInitialPosition(reg, game, camera, player, levels[currentLevel]);
 }
@@ -142,14 +142,14 @@ void gameImmediateInput(SDL_Scancode scancode){
     resetPlayerPosition(reg, scancode, player, levels[currentLevel]);
 }
 
-void gameDefaultInput(SDL_Scancode scancode){    
+void gameDefaultInput(SDL_Scancode scancode){
     playerDefault(reg, scancode);
 }
 
-void gameLogic(double t, float dt){    
+void gameLogic(double t, float dt){
     playerMovement(reg, dt, player);
     playerCollideWithPlatforms(reg, dt, player, levels[currentLevel]);
-    
+
 }
 
 void gameRender(SDL_Renderer* renderer){
